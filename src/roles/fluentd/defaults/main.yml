@@ -1,0 +1,3 @@
+---
+r_fluentd_fluentd_version: 4
+r_fluentd_fluentd_repo: "http://10.29.0.100:4000/td-agent"

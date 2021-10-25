@@ -1,0 +1,20 @@
+---
+- name: Sysctl Default
+  include_tasks: 
+    file: Play_sysAdmin/ApplySysctlConfig.yml
+    apply:
+      tags: r_AppRouter_sysctl
+  vars:
+    sysctl_config: "{{ AppRouter.sysctl|combine(r_router_sysctl, recursive=True) }}"
+  tags: 
+    - r_AppRouter_sysctl
+# - name: Ensure sysctl config
+#   template:
+#     src: sysctl.conf.j2
+#     dest: /etc/sysctl.d/99-router.conf
+#   notify: Reload Sysctl
+#   tags: router_app_system_tune
+
+- name: Routing Tables
+  import_tasks: routing_tables.yml
+  tags: r_AppRouter_routing_tables

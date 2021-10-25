@@ -1,0 +1,6 @@
+use_intermediate_server: no
+local_projects: {}
+ho_systemd_services_path: /etc/systemd/system
+r_local_project_backup_location: /data/backup
+projects_override: {}
+gitlab_overrides: {}

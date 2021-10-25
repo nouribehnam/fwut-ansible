@@ -1,0 +1,33 @@
+#!/bin/bash
+
+ERRORS=0
+ALLOW_FAIL=$1
+ACCEPTABLE_STATUS="301 302 307 200"
+
+
+for i in ${@:2}; do
+
+        URL=${i%,*}
+        RESOLVE=${i#*,}
+
+        if [[ $RESOLVE == $URL ]]; then
+                resp_code=$(timeout 5 curl -s -o /dev/null -w %{http_code} $i)
+
+        else
+                resp_code=$(timeout 5 curl -s -o /dev/null -w %{http_code} --resolve $RESOLVE $URL)
+        fi
+
+        if [[ $? == 0 ]] && [[ -n $(echo $ACCEPTABLE_STATUS | grep $resp_code) ]]; then
+                echo $URL is ok
+        else
+                let ERRORS++
+                echo $URL failed
+                echo $resp_code
+        fi
+
+done
+
+
+if [[ $ERRORS -ge $ALLOW_FAIL ]]; then
+        exit 1
+fi

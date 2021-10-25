@@ -1,0 +1,11 @@
+---
+# This will be applied during Apply System Users
+# - name: Ansible User
+#   include_tasks: "Play_sysAdmin/ApplySystemUser.yml"
+#   vars:
+#     system_user: { key: ansible, value: "{{ system_users['ansible'] }}" }
+- name: Ensure Ansible local facts
+  become: yes
+  file:
+    path: /etc/ansible/facts.d
+    state: directory

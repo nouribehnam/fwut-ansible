@@ -1,0 +1,2 @@
+export ANSIBLE_L_VAULT="--vault-id=\"$ANSIBLE_L_ENV@$ANSIBLE_L_ROOT_PATH/vault/$ANSIBLE_L_ENV.pass\""
+export ANSIBLE_L_EXTRA_VARS="--private-key=\"${ANSIBLE_L_INV_PATH}/files/id_ansible\""

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+CRON_MD5=$(find /etc/cron* -type f -exec md5sum {} \; | md5sum | awk '{print $1}')
+VAR_MD5=$(find /var/spool/cron -type f -exec md5sum {} \; | md5sum | awk '{print $1}')
+LOGROTATE_MD5=$(find /etc/logrotate* -type f -exec md5sum {} \; | md5sum | awk '{print $1}')
+SYSTEMD_MD5=$(find /etc/systemd/* -type f -exec md5sum {} \; | md5sum | awk '{print $1}')
+USER_SSH_MD5=$(find /home/*/.ssh /root/.ssh/ -type f -exec md5sum {} \; | md5sum | awk '{print $1}')
+SUDO_MD5=$(find /etc/sudoers* -type f -exec md5sum {} \; | md5sum | awk '{print $1}')
+
+if ! grep -q "$CRON_MD5" /etc/monit/tmp/dirmd5-values; then
+    CRON_SUGGEST=$(find /etc/cron* -cmin -5 | sort -r | head)
+#    /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`Cron MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$CRON_SUGGEST\`"  > /dev/null
+    echo  "\`Cron MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$CRON_SUGGEST\`"  > /home/d.fazeli/CRON_MD5
+    sed -i '/^CRON_MD5/d' /etc/monit/tmp/dirmd5-values
+    echo "CRON_MD5=" $CRON_MD5 > /etc/monit/tmp/dirmd5-values
+fi
+
+if ! grep -q "$VAR_MD5" /etc/monit/tmp/dirmd5-values; then
+    VAR_SUGGEST=$(find /var/spool/cron -cmin -5 | sort -r | head)
+#    /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`Var Cron MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$VAR_SUGGEST\`"  > /dev/null
+    echo  "\`Var Cron MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$VAR_SUGGEST\`"  > /home/d.fazeli/VAR_MD5
+    sed -i '/^VAR_MD5/d' /etc/monit/tmp/dirmd5-values
+    echo "VAR_MD5=" $VAR_MD5 > /etc/monit/tmp/dirmd5-values
+fi
+
+if ! grep -q "$LOGROTATE_MD5" /etc/monit/tmp/dirmd5-values; then
+    LOGROTATE_SUGGEST=$(find /etc/logrotate* -cmin -5 | sort -r | head)
+#    /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`Logrotate MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$LOGROTATE_SUGGEST\`"  > /dev/null
+    echo  "\`Logrotate MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$LOGROTATE_SUGGEST\`"  > LOGROTATE_MD5
+    sed -i '/^LOGROTATE_MD5/d' /etc/monit/tmp/dirmd5-values
+    echo "LOGROTATE_MD5=" $LOGROTATE_MD5 > /etc/monit/tmp/dirmd5-values
+
+fi
+
+if ! grep -q "$SYSTEMD_MD5" /etc/monit/tmp/dirmd5-values; then
+    SYSTEMD_SUGGEST=$(find /etc/systemd/* -cmin -5 | sort -r | head)
+#    /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`Systemd MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$SYSTEMD_SUGGEST\`"  > /dev/null
+    echo "\`Systemd MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$SYSTEMD_SUGGEST\`"  > /home/d.fazeli/SYSTEMD_MD5
+    sed -i '/^SYSTEMD_MD5/d' /etc/monit/tmp/dirmd5-values
+    echo "SYSTEMD_MD5=" $SYSTEMD_MD5 > /etc/monit/tmp/dirmd5-values
+fi
+
+if ! grep -q "$USER_SSH_MD5" /etc/monit/tmp/dirmd5-values; then
+    USER_SSH_SUGGEST=$(find /home/*/.ssh /root/.ssh -cmin -5 | sort -r | head)
+#    /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`Users .ssh MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$USER_SSH_SUGGEST\`" > /dev/null
+     echo "\`Users .ssh MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$USER_SSH_SUGGEST\`" > /home/d.fazeli/USER_SSH_MD5
+    sed -i '/^USER_SSH_MD5/d' /etc/monit/tmp/dirmd5-values
+    echo "USER_SSH_MD5=" $USER_SSH_MD5 > /etc/monit/tmp/dirmd5-values
+fi
+
+if ! grep -q "$SUDO_MD5" /etc/monit/tmp/dirmd5-values; then
+    SUDO_SUGGEST=$(find /etc/sudo* -cmin -5 | sort -r | head)
+#    /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`Sudoers MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$SUDO_SUGGEST\`" > /dev/null
+    echo  "\`Sudoers MD5\`\n\`\`\`$(hostname)\`\`\`\nSome files are Added, Modified or Removed recently Suggested Files:\n\`$SUDO_SUGGEST\`" > /home/d.fazeli/SUDO_MD5
+    sed -i '/^SUDO_MD5/d' /etc/monit/tmp/dirmd5-values
+    echo "SUDO_MD5=" $SUDO_MD5 > /etc/monit/tmp/dirmd5-values
+fi

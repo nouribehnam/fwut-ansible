@@ -1,0 +1,57 @@
+---
+- hosts: "{{ target_hosts | mandatory }}"
+  vars:
+    tasks_path: Play_sysAdmin
+  gather_facts: "{{ gather_facts|default(omit) }}"
+  handlers:
+    - import_tasks: "{{ tasks_path }}/handlers/network.yml"
+    - import_tasks: "{{ tasks_path }}/handlers/service.yml"
+    - import_tasks: "{{ tasks_path }}/handlers/system.yml"
+  pre_tasks:
+    - name: Global Pre Tasks
+      include_tasks: tasks/global-pre.yml
+      tags: always
+  tasks:
+    - name: Load OS tasks
+      include_tasks:
+        file: "{{ item }}"
+        apply:
+          tags: never
+      with_fileglob: "{{ tasks_path }}/{{ facts.os_dist_ver }}/*.yml"
+      when: not item.endswith('tasks.yml')
+      tags: always
+
+    - name: Load Generic Tasks
+      include_tasks:
+        file: "{{ task_file }}"
+        apply:
+          tags: never
+      with_fileglob: "{{ tasks_path }}/generic/*.yml"
+      loop_control:
+        loop_var: task_file
+      when: not task_file.endswith('tasks.yml')
+      tags: always
+
+    - name: Local Facts
+      debug:
+        var: facts.local
+      tags:
+        - never
+        - Get Local Facts
+
+    - name: Ansible Facts
+      debug:
+        var: ansible_facts
+      tags:
+        - never
+        - Get Facts
+  
+    - name: Import All tasks
+      import_tasks: "{{ tasks_path }}/import_all.yml"
+      tags: 
+        - never
+        - get_tags
+
+  post_tasks:
+    - name: Globl Post Tasks
+      include_tasks: tasks/global-post.yml

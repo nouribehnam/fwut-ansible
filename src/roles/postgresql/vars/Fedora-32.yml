@@ -1,0 +1,14 @@
+---
+r_postgresql_postgresql_version: "12.2"
+r_postgresql_postgresql_data_dir: "/var/lib/pgsql/data"
+r_postgresql_postgresql_bin_path: "/usr/bin"
+r_postgresql_postgresql_config_path: "/var/lib/pgsql/data"
+r_postgresql_postgresql_daemon: postgresql
+r_postgresql_postgresql_packages:
+  - postgresql
+  - postgresql-server
+  - postgresql-contrib
+  - postgresql-libs
+r_postgresql_postgresql_unix_socket_directories_mode: '0755'
+# Fedora 32 containers only have python3 by default
+r_postgresql_postgresql_python_library: python3-psycopg2

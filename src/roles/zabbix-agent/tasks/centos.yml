@@ -1,0 +1,19 @@
+---
+- name: "Ensure Zabbix Centos repository"
+  block:
+    - name: "Zabbix yum repo"
+      tags: 
+        - r_zabbix_agent_repo_config
+      yum_repository:
+        name: "{{item.name}}"
+        description: "{{item.description}}"
+        baseurl: "{{item.baseurl}}"
+        gpgcheck: "{{item.gpgcheck}}"
+        file: "{{ item.file }}"
+        enabled: "{{item.enabled}}"
+        gpgkey: "{{item.gpgkey}}"
+        state: "{{item.state}}"
+      with_items: "{{ r_zabbix_yum_repo }}"
+      notify:
+        - clean yum-cache
+  become: true

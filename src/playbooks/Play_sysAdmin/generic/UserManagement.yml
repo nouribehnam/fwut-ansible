@@ -1,0 +1,27 @@
+---
+- name: Single User
+  include_tasks:
+    file: "{{ tasks_path }}/ApplySystemUser.yml"
+    apply:
+      tags:
+        - never
+        - Apply User
+  vars:
+    system_user: { key: "{{ username }}", value: "{{ system_users[username] }}" }
+  when:
+    - username is defined
+    - username in system_users
+  tags: Apply User
+
+- name: All Users
+  include_tasks: 
+    file: "{{ tasks_path }}/ApplySystemUser.yml"
+    apply:
+      tags: 
+        - never
+        - Apply Users
+  loop: "{{ system_users|dict2items }}"
+  loop_control:
+    loop_var: system_user
+    label: "{{ system_user.key }}"
+  tags: Apply Users

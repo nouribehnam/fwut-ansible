@@ -1,0 +1,101 @@
+---
+- name: Network Configuration
+  become: yes
+  tags: r_common_networking
+  block:
+    - name: Config network interface
+      template:
+        src: "centos/ifcfg.j2"
+        dest: "/etc/sysconfig/network-scripts/ifcfg-{{item.key}}"
+      loop: "{{ networks|default({})|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: not item.value.disabled|default(False)|bool
+      notify:
+        - Restart Networking
+    - name: Remove disabled networks
+      file:
+        path: "/etc/sysconfig/network-scripts/ifcfg-{{item.key}}"
+        state: absent
+      loop: "{{ networks|default({})|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: item.value.disabled|default(False)|bool
+      notify:
+        - Restart Networking
+
+- name: Configure ntp
+  become: yes
+  tags: r_common_ntp
+  template:
+    src: "centos/chrony.j2"
+    dest: "/etc/chrony.conf"
+  notify:
+    - Restart Services 'ntp'
+
+- name: Pakcages Configuration
+  become: yes
+  tags: r_common_packages
+  block:
+    - name: Ensure Repo GPG keys
+      copy:
+        dest: "{{ os.paths.repo_gpg }}/gpg.key"
+        content: "{{ gpg.value }}"
+      loop: "{{ os.rpm_gpg_keys|combine(ho_centos_repo_gpg_keys, recursive=True)|dict2items }}"
+      loop_control:
+        loop_var: gpg
+        label: "{{ gpg.key }}"
+      when: not (repo.disabled|default(False))
+    - name: Ensure Repositories
+      yum_repository: "{{ repo.value }}"
+      loop: "{{ os.repositories.default|combine(ho_centos_local_repos, ho_centos_repos, recursive=True)|dict2items }}"
+      loop_control:
+        loop_var: repo
+        label: "{{ repo.key }}"
+      when: not (repo.value.disabled|default(False))
+    - name: Remove disabled Repositories
+      yum_repository: 
+        name: "{{ repo.key }}"
+        state: absent
+      loop: "{{ os.repositories.default|combine(ho_centos_local_repos, ho_centos_repos, recursive=True)|dict2items }}"
+      loop_control:
+        loop_var: repo
+        label: "{{ repo.key }}"
+      when: repo.value.disabled|default(False)
+    - name: Ensure EPEL Repos
+      yum_repository: "{{ repo.value }}"
+      loop: "{{ os.repositories.epel|combine(ho_centos_epel_repos, recursive=True)|dict2items }}"
+      loop_control:
+        loop_var: repo
+        label: "{{ repo.key }}"
+      when: ho_centos_use_epel
+    - name: Use proxy for yum
+      lineinfile:
+        path: /etc/yum.conf
+        regexp: 'proxy=.*'
+        line: "proxy={{ proxy.http }}"
+      when:
+        - proxy.http is defined
+        - ho_yum_use_proxy
+    - name: Install CentOS packages
+      yum:
+        name: "{{ item }}"
+        state: installed
+      loop: "{{ os.packages.centos_common|default({}) }}"
+
+- name: Services Configuration
+  become: yes
+  tags: r_common_services
+  block:
+    - name: Ensure sshd selinux custom port
+      seport:
+        ports: "{{ sshd_port | mandatory }}"
+        proto: tcp
+        setype: ssh_port_t
+        state: present
+      when: ansible_selinux.status == "enabled"
+      notify: Restart Services 'ssh'
+    - name: rsyslog configuration
+      copy:
+        src: centos/rsyslog.d/
+        dest: /etc/rsyslog.d

@@ -1,0 +1,52 @@
+# my global config
+global:
+  scrape_interval: {{ r_prometheus_config_scrape_interval }}
+  scrape_timeout: {{ r_prometheus_config_scrape_timeout }}
+
+rule_files:
+{%for item in rule_files %}
+  - {{ item }}
+{% endfor %}
+
+
+alerting:
+  alertmanagers:
+    - static_configs:
+{% for item in  alertings_targets %}
+      - targets:
+        - {{ item }} 
+{% endfor %}
+
+
+scrape_configs:
+
+{% for item in prom_jobs %}
+# --------------------- {{ prom_jobs[item].name }} ---------------------
+
+- job_name: {{ prom_jobs[item].name }}
+{% if prom_jobs[item].honor_labels is defined  %}
+  honor_labels: {{ prom_jobs[item].honor_labels }}
+{% endif %}
+{% if prom_jobs[item].metrics_path is defined  %}
+  metrics_path: {{ prom_jobs[item].metrics_path}}
+{% endif %}
+{% if prom_jobs[item].scrape_interval is defined  %}
+  scrape_interval: {{ prom_jobs[item].scrape_interval}}
+{% endif %}
+{% if prom_jobs[item].scrape_timeout is defined  %}
+  scrape_timeout: {{ prom_jobs[item].scrape_timeout}}
+{% endif %}
+{% if prom_jobs[item].params is defined  %}
+  params: 
+{%for params in prom_jobs[item].params %}
+    {{params}}: {{prom_jobs[item].params[params]}}
+{% endfor %}
+{% endif %}
+  static_configs: 
+  - targets: 
+{%for target in prom_jobs[item].targets %}
+      - {{target}}
+{% endfor %}
+
+
+{% endfor %}

@@ -1,0 +1,8 @@
+---
+- name: "Ensure node Cert"
+  become: yes
+  copy:
+    src: elastic-certificates.p12
+    dest: "{{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ node_name }}/ssl/"
+    owner: ansible
+    group: docker

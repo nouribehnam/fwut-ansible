@@ -1,0 +1,5 @@
+alias ipa="ip -br a"
+alias ipb="ip -br"
+alias ipl="ip -br link"
+alias rm="rm -i"
+alias duh1="du -d 1 -h"

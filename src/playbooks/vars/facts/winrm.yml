@@ -1,0 +1,10 @@
+---
+facts:
+  system: "{{ ansible_facts['os_family'] }}"
+  os_info: "{{ ansible_facts['os_family'] }}: {{ ansible_facts['os_family'] }} {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+  os_dist_ver: "{{ ansible_facts['os_family']|lower }}-{{ ansible_facts['os_installation_type']|lower|slugify }}_{{ ansible_facts['distribution_major_version'] }}"
+  distro: "{{ ansible_facts['os_family'] }} {{ ansible_facts['os_installation_type'] }}"
+  distro_lower: "{{ ansible_facts['os_family']|lower }}-{{ ansible_facts['os_installation_type']|lower|slugify }}"
+  distro_major: "{{ ansible_facts['distribution_major_version'] }}"
+  # distro_release: "{{ ansible_facts['distribution_release'] }}"
+  local: "{{ ansible_facts['ansible_local']|default({}) }}"

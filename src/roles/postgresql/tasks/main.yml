@@ -1,0 +1,20 @@
+---
+# Variable configuration.
+- include_tasks: variables.yml
+
+# Setup/install tasks.
+- name: Include tasks for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+
+- include_tasks: initialize.yml
+- include_tasks: configure.yml
+
+- name: Ensure PostgreSQL is started and enabled on boot.
+  service:
+    name: "{{ r_postgresql_postgresql_daemon }}"
+    state: "started"
+    enabled: "true"
+
+# Configure PostgreSQL.
+- import_tasks: databases.yml
+- import_tasks: users.yml

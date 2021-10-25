@@ -1,0 +1,23 @@
+---
+- name: Daemon Reload
+  become: yes
+  systemd:
+    name: firewall
+    state: restarted
+    daemon_reload: yes
+  ignore_errors: '{{ ansible_check_mode }}'
+  
+- name: Enable Firewall
+  become: yes
+  systemd:
+    name: firewall
+    enabled: yes
+  ignore_errors: '{{ ansible_check_mode }}'
+  
+- name: Restart Firewall
+  become: yes
+  systemd:
+    name: firewall
+    state: restarted
+  ignore_errors: '{{ ansible_check_mode }}'
+    

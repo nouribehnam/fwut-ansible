@@ -1,0 +1,10 @@
+#!/bin/bash
+
+docker ps > /dev/null
+if [[ $? == 0 ]]; then
+    echo "Docker process is OK"
+    exit 0
+else
+    echo "Docker process is not responding to API requests" >> /dev/stderr
+    exit 1
+fi

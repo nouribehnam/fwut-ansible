@@ -1,0 +1,14 @@
+{% if item.value.type == 'combined' %}
+{% for list_name, list_options in item.value.entries.items() if not list_options.disabled|default(False)|bool %}
+{{ list_options|make_ipset_set(list_name) }}
+{% for entry in list_options.list_items|default([]) if not entry.disabled|default(False)|bool %}
+{{ entry|make_ipset_rule(list_name) }}
+{% endfor %}
+
+{% endfor %}
+{% else %}
+{{ item.value|make_ipset_set(item.key) }}
+{% for entry in item.value.list_items|default([]) if not entry.disabled|default(False)|bool %}
+{{ entry|make_ipset_rule(item.key) }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,20 @@
+---
+
+general_config:
+
+notify_method:
+    notify_telegram: false
+    notify_slack: true
+
+notify_slack_parameter:
+     url_webhook: https://hooks.slack.com/services/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
+
+
+monit_packages:
+  - monit
+
+monit_service: monit
+
+monit_config_file_path: "/etc/monit.d/"
+monit_scritp_file_path: "/usr/local/sbin/monit"
+

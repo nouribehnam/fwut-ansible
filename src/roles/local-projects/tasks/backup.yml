@@ -1,0 +1,15 @@
+---
+- name: ({{ project_name }}) Find current downloaded sources
+  find:
+    paths: "{{ project_source.project.dest }}"
+    patterns: "{{ project_source.file_pattern|default(omit) }}"
+  register: r_local_projects_source_files
+- name: ({{ project_name }}) Remove old downloaded sources
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ r_local_projects_source_files.files|sort(attribute='mtime', reverse=True) }}"
+  loop_control:
+    label: "{{item.path}} - {{ '%Y-%m-%d %H:%M:%S'|strftime(item.mtime|string) }}"
+    extended: true
+  when: ansible_loop.index > project_source.keep|default(0)

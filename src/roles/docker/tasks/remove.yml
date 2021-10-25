@@ -1,0 +1,25 @@
+---
+- name: Remove Docker
+  become: yes
+  block:
+    - name: Ensure docker service is stopped and disabled
+      systemd:
+        name: "{{ os.services_name.docker|default('docker') }}"
+        enabled: no
+        state: stopped
+      ignore_errors: yes
+    - name: Remove docker packages
+      package:
+        name: "{{ docker_packages }}"
+        state: absent
+    - name: Remove docker pip modules
+      pip:
+        name: 
+          - docker
+          - docker-compose
+        state: absent
+    - name: Remove docker-compose
+      file:
+        path: "{{ dc_bin_path }}"
+        state: absent
+      tags: REMOVE DOCKER COMPOSE

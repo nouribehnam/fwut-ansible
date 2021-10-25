@@ -1,0 +1,54 @@
+---
+- name: Defining projects
+  set_fact:
+    projects_list: "{{local_projects.keys()}}"
+    groups_list: "{{ local_projects.values()|map(attribute='groups')|flatten|unique }}"
+    local_projects: "{{ local_projects|combine(projects_override,recursive=True) }}"
+  tags: always
+- name: Selecting projects
+  set_fact:
+    selected_projects: "{{ projects_list | select('match', only_projects|default('.*')) | reject('match', except_projects|default('NONE')) }}"
+    selected_groups: "{{ groups_list | select('match', only_groups|default('.*')) | reject('match', except_groups|default('NONE')) }}"
+  tags: always
+- name: List Projects
+  debug:
+    msg:
+      projects_list: "{{projects_list}}"
+      selected_projects: "{{selected_projects}}"
+      groups_list: "{{groups_list}}"
+      selected_groups: "{{selected_groups}}"
+  tags:
+    - r_local_projects_list
+    - never
+- name: Deployment
+  become: yes
+  block:
+    - name: Ensure required packages
+      package:
+        name:
+          - unzip
+      tags: r_local_projects_prerequisite
+    - name: Deploy
+      include_tasks: 
+        file: deploy.yml
+        apply:
+          tags:
+            - r_local_projects_deploy
+      loop: "{{selected_projects}}"
+      loop_control:
+        loop_var: project_name
+        label: "{{project_name}}"
+      vars:
+        project_info: "{{ local_projects[project_name] }}"
+        project_source: "{{project_info['src']}}"
+        project_dest: "{{project_info['dest']}}"
+      when: (selected_groups|intersect(project_info.groups)|length) > 0
+      tags:
+        - always
+        - r_local_projects_deploy
+        - r_local_projects_deploy_download
+        - r_local_projects_deploy_backup
+        - r_local_projects_deploy_copy
+        - r_local_projects_deploy_config
+        - r_local_projects_deploy_release
+        - r_local_projects_deploy_run

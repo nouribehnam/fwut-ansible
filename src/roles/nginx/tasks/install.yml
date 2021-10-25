@@ -1,0 +1,25 @@
+---
+- name: Become
+  become: yes
+  block:
+  - name: Ensure nginx package
+    package:
+      name: "{{ r_nginx_packages[facts.distro_lower]|default('nginx') }}"
+      state: present
+    tags: r_nginx_packages
+  - name: Ensure {{ r_nginx_user }} user
+    user:
+      name: "{{ r_nginx_user }}"
+      system: yes
+      create_home: no
+      home: "{{ r_nginx_home_path }}"
+  - name: Ensure base folders
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ r_nginx_user }}"
+      group: "{{ r_nginx_group }}"
+      mode: 0755
+      recurse: yes
+    loop: "{{ AppNginx.paths }}"
+  

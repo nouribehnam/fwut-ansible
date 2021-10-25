@@ -1,0 +1,32 @@
+---
+r_docker_packages_rm:
+  - docker
+  - docker-client
+  - docker-client-latest
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate
+  - docker-engine
+  - docker.io
+  - containerd
+  - runc
+
+r_docker_packages_ins:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - jq
+
+r_docker_pip_modules:
+  - docker
+  - docker-compose>=1.7.0
+
+r_docker_preq:
+  debian:
+    '10':
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common

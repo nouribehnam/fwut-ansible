@@ -1,0 +1,57 @@
+---
+- name: Ensure Bacula config files
+  template:
+    src: "{{config_file.src}}"
+    dest: "{{config_file.dest}}"
+    owner: "{{config_file.owner|default(omit)}}"
+    group: "{{config_file.group|default(omit)}}"
+    mode: "{{config_file.mode|default('0666')}}"
+  loop: "{{ r_bacula_config_files }}"
+  loop_control:
+    label: "{{config_file.src}}"
+    loop_var: config_file
+  notify: restart bacula-services
+
+- name: Ensure Bacula base configs
+  template:
+    src: bacula-config.j2
+    dest: "{{r_bacula_config_dir}}/{{config_file.key}}.conf"
+    owner: "{{config_file.value.owner|default(omit)}}"
+    group: "{{config_file.value.group|default(omit)}}"
+    mode: "{{config_file.value.group|default('0666')}}"
+  loop: "{{ r_bacula_base_configs|combine(r_bacula_default_configs,recursive=True)|dict2items }}"
+  loop_control:
+    label: "{{config_file.key }}"
+    loop_var: config_file
+  vars:
+    config_options: "{{config_file.value.options}}"
+  notify: restart bacula-services
+  tags: r_bacula_server_config
+
+- name: Ensure Bacula clients configs
+  template:
+    src: bacula-config.j2
+    dest: "{{r_bacula_config_dir}}/conf.d/{{ client.key }}.conf"
+    owner: "{{client.value.owner|default(omit)}}"
+    group: "{{client.value.group|default(omit)}}"
+    mode: "{{client.value.group|default('0666')}}"
+  loop: "{{ r_bacula_clients_configs|dict2items }}"
+  loop_control:
+    label: "{{ client.key }}"
+    loop_var: client
+  vars:
+    config_options: "{{client.value.options}}"
+  notify: restart bacula-services
+  tags: r_bacula_clients_config
+
+- name: Enable the Apache2 module rewrite
+  apache2_module:
+    name: rewrite
+    state: present
+    
+- name: Enable baculum web site
+  command: a2ensite baculum-web
+
+- name: Enable baculum api site
+  command: a2ensite baculum-api
+  notify: restart apache2  

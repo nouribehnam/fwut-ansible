@@ -1,0 +1,5 @@
+---
+- name: Reload Sysctl
+  become: yes
+  shell:
+    cmd: "sysctl --system"

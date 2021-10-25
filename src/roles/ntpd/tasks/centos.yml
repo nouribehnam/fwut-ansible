@@ -1,0 +1,19 @@
+---
+- name: Set pool to pool.ntp.org
+  become: yes
+  lineinfile:
+    path: /etc/chrony.conf
+    regexp: 'pool .*'
+    line: "pool pool.ntp.org iburst"
+- name: Ensure Allow is set in Chrony.conf
+  become: yes
+  lineinfile:
+    path: /etc/chrony.conf
+    regexp: 'allow .*'
+    line: "allow 0.0.0.0/0"
+- name: restart and enable chronyd
+  become: yes
+  systemd:
+    name: chronyd
+    enabled: yes
+    state: restarted

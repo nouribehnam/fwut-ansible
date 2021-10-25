@@ -1,0 +1,47 @@
+---
+
+- name: -- install monit --
+  ansible.builtin.package:
+    name: "{{ monit_packages }}"
+    state: present
+
+- name: --- Create monit directory ---
+  file:
+     path: "{{ item }}"
+     state: directory
+  with_items:
+     - "/usr/local/sbin/monit"
+     - "/etc/monit/tmp/"   
+
+- name: --- Create applist.list File ---
+  file:
+     path: "{{ item }}"
+  with_items:
+     - /etc/monit/tmp/applist.list
+
+- name: --- Copy Monit script ---
+  template:
+    src: '{{ item.src }}'
+    dest: "{{ monit_scritp_file_path }}/{{ item.path | regex_replace('\\.j2$', '')}}"
+  loop: "{{ lookup('filetree', 'templates/monit-scripts')}}"
+  when: item.state == 'file'
+  
+- name: --- Copy Monit Config files ---
+  template:
+    src: '{{ item.src }}'
+    dest: "{{ monit_config_file_path }}/{{ item.path | regex_replace('\\.j2', '')}}"
+  loop: "{{ lookup('filetree', 'templates/monit-config') }}"
+  when: item.state == 'file'
+
+- name: --- Chmod +x monit script  ---
+  file: 
+    path: /usr/local/sbin/monit/
+    mode: 0750
+    recurse: yes
+
+- name: ---- restart monit ----
+  systemd:
+    name: monit
+    state: restarted
+  become: true
+ 

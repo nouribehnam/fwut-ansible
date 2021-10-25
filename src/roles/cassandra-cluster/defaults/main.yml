@@ -1,0 +1,66 @@
+---
+
+general_config:
+  java_version: jdk-8u301-linux-x64.tar.gz
+  cassandra_version: apache-cassandra-3.11.10-bin.tar.gz
+  install_java: true
+  create_data_disk: 
+      present: true
+      device: /dev/sdb
+      filesystem: 'xfs' 
+      vg_name: vg_cassandra_data
+      lv_name: lv_cassandra_data
+      lv_size: '100%FREE' 
+      mount_point: /cassandra/data
+  
+  
+cassandra_cofig:
+    cassandra_name: cassandra-iot
+    num_tokens: 256
+    # Default AllowAllAuthenticator
+    authenticator: PasswordAuthenticator
+    # Default AllowAllAuthorizer
+    authorizer: CassandraAuthorizer
+    role_manager: CassandraRoleManager
+    data_file_directories: /cassandra/data
+    commitlog_directory: /cassandra/commitlog
+    concurrent_reads: 32
+    concurrent_writes: 32
+    concurrent_counter_writes: 32
+    native_transport_port: 9042
+    endpoint_snitch: GossipingPropertyFileSnitch
+    Xmx: 2
+    Xms: 2
+
+repo_info:
+   protocol: http://
+   url: repo.fwut.xyz
+   port: 80
+
+#  --------------- kafka nodes ----------------
+cassandra_nodes:
+  node1:
+    ssh_ip: 10.29.0.113
+    listen_address: 10.29.0.113
+    rpc_address: 10.29.0.113
+    seed_ip: 10.29.0.113
+    port: 9042
+    node_id: 113
+        
+  node2:
+    ssh_ip: 10.29.0.114
+    seed_ip: 10.29.0.114
+    listen_address: 10.29.0.114
+    rpc_address: 10.29.0.114
+    port: 9042
+    broker_id: 114
+    
+  node3:
+    ssh_ip: 10.29.0.115
+    seed_ip: 10.29.0.115
+    listen_address: 10.29.0.115
+    rpc_address: 10.29.0.115
+    port: 9042
+    broker_id: 115
+    
+

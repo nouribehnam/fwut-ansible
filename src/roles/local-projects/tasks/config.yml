@@ -1,0 +1,26 @@
+---
+- name: ({{ project_name }}) Ensure project configs
+  template:
+    src: "{{ config_file.template }}.j2"
+    dest: "{{ project_dest.path }}/{{config_file.file}}"
+    mode: "{{ config_file.mode|default(omit) }}"
+  loop: "{{ project_dest.config_files }}"
+  loop_control:
+    loop_var: config_file
+    label: "{{ config_file.file }}"
+  vars:
+    config: "{{ config_file.config }}"
+  when: project_dest.config_files is defined
+  tags: r_local_projects_deploy_config
+  register: prj_config_status
+# - name: Update deploy_changed
+#   set_fact:
+#     prj_deploy_changed: "{{prj_copy_status.changed}}"
+- name: ({{ project_name }}) Save release info
+  copy:
+    dest: "{{ project_dest.path }}/{{ project_dest.save_release }}"
+    content: "{{ downloaded_source.msg }}"
+  when:
+    - downloaded_source.msg is defined
+    - project_dest.save_release is defined
+  tags: r_local_projects_deploy_release

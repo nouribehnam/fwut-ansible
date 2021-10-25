@@ -1,0 +1,3 @@
+---
+- debug:
+    msg: "Nothing to do for {{ facts.os_info }}"

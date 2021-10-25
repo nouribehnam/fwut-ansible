@@ -1,0 +1,23 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+#::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+{% if ho_hosts_add_self %}
+127.0.0.1   {{ hostname|mandatory }}.{{ hostdomain|mandatory }} {{ hostname }}
+#::1         {{ hostname|mandatory }}.{{ hostdomain|mandatory }} {{ hostname }}
+{% endif %}
+
+{% if extra_hosts is defined %}
+{% for host_ip,host_name in extra_hosts.items() %}
+{% if host_name is string %}
+{{ host_ip }} {{ host_name }}
+{% elif host_name is iterable %}
+{{ host_ip }} {{ host_name|join(" ") }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if ho_extra_hosts is defined %}
+{% for host_ip,host_name in ho_extra_hosts.items() %}
+{{ host_ip }} {{ host_name|join(" ") }}
+{% endfor %}
+{% endif %}

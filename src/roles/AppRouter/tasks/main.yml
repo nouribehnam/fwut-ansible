@@ -1,0 +1,31 @@
+---
+- name: Deploy Router APP
+  become: yes
+  tags: r_AppRouter
+  block:
+    - name: Include extra options
+      include_vars:
+        dir: vars
+        ignore_files : main.yml
+      tags: always
+
+    - name: Include tasks for "{{ facts.distro }}"
+      include_tasks:
+        file: "{{ facts.distro_lower }}.yml"
+        apply:
+          tags: r_AppRouter_os
+      tags: r_AppRouter_os
+
+    - import_tasks: install.yml
+      tags: r_AppFirewall_install
+
+    - import_tasks: make_router_settings.yml
+      tags: r_App_Router_settings
+
+    - import_tasks: test.yml
+      tags: r_App_Router_test
+      
+    - import_tasks: router_remove.yml
+      tags:
+        - never
+        - ROLE_APP_ROUTER_REMOVE

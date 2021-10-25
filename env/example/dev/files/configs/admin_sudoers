@@ -1,0 +1,2 @@
+%admin ALL=(ALL:ALL) NOPASSWD: ALL,!/bin/su,!/bin/bash,!/bin/sh,!/usr/bin/screen
+%super_admin ALL=(ALL:ALL) NOPASSWD: ALL

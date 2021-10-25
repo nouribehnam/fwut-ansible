@@ -1,0 +1,35 @@
+---
+- name: Become
+  become: yes
+  block:
+  - name: Ensure openconnect package
+    package:
+      name: "{{ r_openconnect_packages[facts.distro_lower]|default('openconnect') }}"
+      state: present
+    tags: r_openconnect_packages
+  - name: Ensure openconnect service file
+    copy:
+      src: openconnect.service
+      dest: /etc/systemd/system/openconnect@.service
+    notify: Daemon Reload
+  - name: Ensure openconnect launcher
+    copy:
+      src: openconnect-launch
+      dest: /usr/sbin/openconnect-launch
+      mode: 0744
+  # - name: Ensure {{ r_openconnect_script_files_user }} user
+  #   user:
+  #     name: "{{ r_openconnect_script_files_user }}"
+  #     system: yes
+  #     create_home: no
+  #     home: "{{ r_openconnect_script_files_home_path }}"
+  # - name: Ensure base folders
+  #   file:
+  #     path: "{{ item }}"
+  #     state: directory
+  #     owner: "{{ r_openconnect_script_files_user }}"
+  #     group: "{{ r_openconnect_script_files_group }}"
+  #     mode: 0755
+  #     recurse: yes
+  #   loop: "{{ r_openconnect_script_files.paths }}"
+  

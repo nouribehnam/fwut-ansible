@@ -1,0 +1,24 @@
+alias docker-i-logfile="docker inspect --format='{{json .LogPath}}'"
+alias docker-i-mounts="docker inspect --format='{{json .Mounts}}'"
+alias docker-i-networks="docker inspect --format='{{json .NetworkSettings.Networks}}'"
+alias docker-i-ports="docker inspect --format='{{json .NetworkSettings.Ports}}'"
+alias docker-i-envs="docker inspect --format='{{json .Config.Env}}'"
+alias docker-tail="docker logs --follow"
+alias docker-exec="docker exec -ti"
+alias docker-image="docker image ls"
+alias docker-volume="docker volume ls"
+alias docker-network="docker network ls"
+alias docker-exec="docker exec -ti"
+
+#_completion_loader docker
+complete -F _docker \
+    docker-i-logfile \
+    docker-i-mounts \
+    docker-i-networks \
+    docker-i-ports \
+    docker-i-env \
+    docker-tail \
+    docker-exec \
+    docker-image \
+    docker-volume \
+    docker-network

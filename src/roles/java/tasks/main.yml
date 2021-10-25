@@ -1,0 +1,15 @@
+---
+- name: become
+  become: yes
+  vars:
+    r_java_info: "{{ r_java[r_java_version] }}"
+    r_java_url: "{{ r_java_info['url_' + facts.system|lower] }}"
+  block:
+    - name: install {{ r_java_info }}
+      import_tasks: install.yml
+      tags: r_java_install
+    - name: remove
+      import_tasks: remove.yml
+      tags:
+        - never
+        - ROLE_TOMCAT_REMOVE

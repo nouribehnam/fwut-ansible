@@ -1,0 +1,18 @@
+---
+- name: Find "{{ r_AppFirewall.local_rules_folder }}/*.{{ rules_version }}.rules" files
+  find:
+    paths: 
+      - "{{ r_AppFirewall.local_rules_folder }}"
+    patterns:
+      - "*.{{ rules_version }}.rules"
+  register: local_rules_files
+
+- name: Remove Custom Rules {{ rules_version }}
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ local_rules_files.files }}"
+  loop_control:
+        label: "{{ item.path }}"
+  notify:
+    - Restart Firewall

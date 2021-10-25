@@ -1,0 +1,5 @@
+#!/bin/bash
+
+bash /usr/local/sbin/monit/slack.sh https://hooks.slack.com/services/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 monitalert $(find /opt/output-monit-scripts/ -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "|  xargs cat)
+
+#find /opt/output-monit-scritps/ -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" "

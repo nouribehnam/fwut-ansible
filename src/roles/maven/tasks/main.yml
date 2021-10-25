@@ -1,0 +1,15 @@
+---
+- name: become
+  become: yes
+  vars:
+    r_maven_info: "{{ r_maven[r_maven_version] }}"
+    r_maven_url: "{{ r_maven_info['url_' + facts.system|lower] }}"
+  block:
+    - name: install {{ r_maven_info }}
+      import_tasks: install.yml
+      tags: r_maven_install
+    - name: remove
+      import_tasks: remove.yml
+      tags:
+        - never
+        - ROLE_TOMCAT_REMOVE

@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  artifactory:
+    container_name: "{{ r_artifactory_dock_container_name }}"
+    image: "{{ r_artifactory_dock_docker_image }}:{{ r_artifactory_dock_docker_image_version }}"    
+    ports:
+      - "{{ r_artifactory_dock_host_port_1 }}:8081"
+      - "{{ r_artifactory_dock_host_port_2 }}:8082"
+    volumes:
+      - {{ r_artifactory_dock_data_vol }}:/var/opt/jfrog/artifactory
+    network_mode: bridge

@@ -1,0 +1,7 @@
+---
+- name: restart postgresql
+  service:
+    name: "{{ r_postgresql_postgresql_daemon }}"
+    state: "restarted"
+    sleep: 5
+  become: yes

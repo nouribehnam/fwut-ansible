@@ -1,0 +1,11 @@
+---
+- name: Remove ansible packages
+  become: yes
+  package:
+      name: "{{ os.packages.ansible|default('ansible') }}"
+      state: absent
+- name: Remove ansible folder
+  become: yes
+  file:
+    path: "{{ Ansible.path }}"
+    state: absent

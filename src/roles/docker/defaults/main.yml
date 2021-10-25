@@ -1,0 +1,18 @@
+r_docker_compose_version: 1.28.4
+docker_daemon_conf: {}
+
+r_docker_add_repo: yes
+r_docker_repos:
+  centos:
+    '7':
+      url: https://download.docker.com/linux/centos/7/$basearch/stable
+      gpg: https://download.docker.com/linux/centos/gpg
+  debian:
+    '10':
+      url: https://download.docker.com/linux/debian buster stable
+      gpg: https://download.docker.com/linux/debian/gpg
+
+r_docker_compose_url: "https://github.com/docker/compose/releases/download/{{ r_docker_compose_version }}/docker-compose-Linux-x86_64"
+r_docker_compose_bin_path: /usr/bin/docker-compose
+
+ho_has_internet: yes

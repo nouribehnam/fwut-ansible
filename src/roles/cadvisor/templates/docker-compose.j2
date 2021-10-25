@@ -1,0 +1,18 @@
+version: "3.8"
+services:
+  cadvisor:
+    container_name: "{{ r_cadvisor_dock_container_name }}"
+    image: "{{ r_cadvisor_dock_docker_image }}:{{ r_cadvisor_dock_docker_image_version }}"    
+    {% if r_cadvisor_dock_network_mode == "host" %}network_mode: "{{ r_cadvisor_dock_network_mode }}"{% endif %}    
+    {% if r_cadvisor_dock_network_mode == "default" %}ports:
+      - "{{ r_cadvisor_dock_host_port }}:8080"
+    {% endif %} 
+    devices:
+      - "/dev/kmsg:/dev/kmsg"
+    volumes:
+      - {{ r_cadvisor_dock_root_vol }}:/rootfs:ro
+      - {{ r_cadvisor_dock_run_vol }}:/var/run:rw
+      - {{ r_cadvisor_dock_sys_vol }}:/sys:ro
+      - {{ r_cadvisor_dock_docker_vol }}:/var/lib/docker:ro
+      - {{ r_cadvisor_dock_disk_vol }}:/dev/disk/:ro
+    restart: "{{ r_cadvisor_dock_doc_restart_policy }}"

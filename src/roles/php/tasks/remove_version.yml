@@ -1,0 +1,10 @@
+---
+- name: remove php modules
+  package:
+    name: "{{ os.packages.php[php_version.version].modules[item] }}"
+    state: absent
+  loop: "{{ php_version.modules }}"
+- name: remove php package
+  package:
+    name: "{{ os.packages.php[php_version.version].php }}"
+    state: absent

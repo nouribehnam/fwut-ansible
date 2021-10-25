@@ -1,0 +1,8 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Remove nginx package
+      package:
+        name: "{{ os.packages.nginx|default('nginx') }}"
+        state: absent

@@ -1,0 +1,5 @@
+#!/bin/bash
+if [ -s $1 ]; then
+        FILE_VALUE=$(cat $1)
+        /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "$MONIT_SERVICE\n\`\`\`$MONIT_HOST\`\`\`\n\n\`$FILE_VALUE\`." > /dev/null
+fi

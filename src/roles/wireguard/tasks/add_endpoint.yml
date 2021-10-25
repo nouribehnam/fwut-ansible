@@ -1,0 +1,29 @@
+- name: Ensure private_key for {{ wireguard_endpoint.key }}
+  assert:
+    that:
+      - secrets.wireguard_keys[wireguard_endpoint.key].public is defined
+      - secrets.wireguard_keys[wireguard_endpoint.key].private is defined
+    fail_msg: Private/Public key should be defined for {{ wireguard_endpoint.key }}
+
+- name: Generate endpoint config for {{ wireguard_endpoint.key }}
+  template:
+    src: endpoint.j2
+    dest: "{{ r_wireguard_config_path }}/{{ wireguard_endpoint.key }}.conf"
+  notify: Restart Wireguard Endpoints
+
+- name: Ensure endpoint service for {{ wireguard_endpoint.key }}
+  systemd:
+    name: "wg-quick@{{ wireguard_endpoint.key }}"
+    state: started
+    masked: no
+    enabled: yes
+
+- name: Generate client config
+  debug:
+    msg: "{{ lookup('template', 'client.j2') }}"
+  loop: "{{ wireguard_endpoint.value.users.names|selectattr('name', 'search', gen_client_conf)|list }}"
+  loop_control:
+    loop_var: user
+  when:
+    - gen_client_conf is defined
+    - wireguard_endpoint.value.users is defined

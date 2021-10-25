@@ -1,0 +1,28 @@
+---
+- name: import vars
+  include_vars:
+    dir: vars
+    ignore_files : main.yml
+  tags: always
+- name: Include tasks for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+  tags: always
+- name: flush handlers
+  meta: flush_handlers
+- name: Install PHP
+  import_tasks: install.yml
+  tags: r_php_install
+- name: PHP Default Config
+  import_tasks: config_default.yml
+  tags: 
+    - r_php_config
+    - r_php_config_default
+# - name: PHP sites config
+#   import_tasks: config_sites.yml
+# - name: Validate PHP config
+#   import_tasks: check_config.yml
+- name: Remove PHP
+  import_tasks: remove.yml
+  tags:
+    - never
+    - ROLE_PHP_REMOVE

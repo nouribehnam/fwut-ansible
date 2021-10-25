@@ -1,0 +1,34 @@
+---
+- name: Generating Custom Rules
+  block:
+    - name: Ensure local rules folder
+      file:
+        path: "{{ r_AppFirewall.local_rules_folder }}"
+        state: directory
+    - name: Custom Rules v4 
+      import_tasks: generate_rules.yml
+      vars:
+        rules_version: v4
+        validation_cmd: iptables-restore --test %s
+        firewall_rules: "{{ firewall.firewall_rules_v4 }}"
+      when: firewall.firewall_rules_v4 is defined
+      tags: firewall_app_host_rules
+    - name: Custom Rules v6 
+      import_tasks: generate_rules.yml
+      vars:
+        rules_version: v6
+        validation_cmd: ip6tables-restore --test %s
+        firewall_rules: "{{ firewall.firewall_rules_v6 }}"
+      when: firewall.firewall_rules_v6 is defined
+      tags: firewall_app_host_rules
+- name: Remove Custom Rules
+  block:
+  - import_tasks: remove_rules.yml
+    vars:
+      - rules_version: v4
+    when: firewall.firewall_rules_v4 is not defined
+  - import_tasks: remove_rules.yml
+    vars:
+      - rules_version: v6
+    when: firewall.firewall_rules_v6 is not defined
+    

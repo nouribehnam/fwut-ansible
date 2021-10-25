@@ -1,0 +1,30 @@
+---
+- hosts: "{{ target_hosts | mandatory }}"
+  vars:
+    sysAdmin_path: Play_sysAdmin
+  handlers:
+    - import_tasks: "{{ sysAdmin_path }}/handlers/network.yml"
+    - import_tasks: "{{ sysAdmin_path }}/handlers/service.yml"
+    - import_tasks: "{{ sysAdmin_path }}/handlers/system.yml"
+  pre_tasks:
+    - include_tasks: tasks/global-pre.yml
+      tags: always
+  tasks:
+    - name: Ensure python modules
+      pip:
+        name:
+          - python-ldap
+    - name: Active Directory USers
+      community.general.ldap_search:
+        server_uri: "ldap://ad01.fwut.local"
+        dn: "dc=Users,dc=fwut,dc=xyz"
+        bind_dn: "cn=ansible,cn=users,dc=fwut,dc=xyz"
+        bind_pw : "{{ ansible_password }}"
+        filter: "(objectClass=*,cn=ansible)"
+        # search_base: DC=fwut,DC=xyz
+      register: ad_result
+    - debug:
+        var: ad_result
+  post_tasks:
+    - include_tasks: tasks/global-post.yml
+      tags: always

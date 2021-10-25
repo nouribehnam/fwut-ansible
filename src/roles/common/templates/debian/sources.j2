@@ -1,0 +1,4 @@
+deb {{ item.value.url }} {{ item.value.release }} {{ item.value.branches|join(' ') }}
+{% if item.value.src|default(False) %}
+deb-src {{ item.value.url }} {{ item.value.release }} {{ item.value.branches|join(' ') }}
+{% endif %}

@@ -1,0 +1,4 @@
+---
+r_bacula_client_workingdirectory: "C:\\Program Files\\Bacula\\working"
+r_bacula_client_piddirectory: "C:\\Program Files\\Bacula\\working"
+r_bacula_client_plugindirectory: "C:\\Program Files\\Bacula\\plugins"

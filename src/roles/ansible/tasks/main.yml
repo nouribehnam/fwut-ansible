@@ -1,0 +1,10 @@
+---
+- name: Deploy Ansible Controle Node
+  tags: r_ansible
+  block:
+    - import_tasks: install.yml
+      tags: r_ansible_instal
+    - import_tasks: remove.yml
+      tags:
+        - never
+        - ROLE_ANSIBLE_REMOVE

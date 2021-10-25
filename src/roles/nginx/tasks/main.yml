@@ -1,0 +1,20 @@
+---
+- name: Include tasks for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+  tags: always
+- name: flush handlers
+  meta: flush_handlers
+- name: Install Nginx
+  import_tasks: install.yml
+  tags: r_nginx_install
+- name: Nginx Default Config
+  import_tasks: config_default.yml
+- name: Nginx sites config
+  import_tasks: config_sites.yml
+- name: Validate Nginx config
+  import_tasks: check_config.yml
+- name: Remove Nginx
+  import_tasks: remove.yml
+  tags:
+    - never
+    - ROLE_NGINX_REMOVE

@@ -1,0 +1,20 @@
+[Unit]
+Description=Tomcat Server {{ r_tomcat_version }}
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User={{ r_tomcat_user }}
+Group={{ r_tomcat_group }}
+
+Environment=JAVA_HOME={{ r_tomcat_java_home|mandatory }}
+Environment='JAVA_OPTS={{ r_tomcat_java_options }}'
+Environment=CATALINA_HOME={{ r_tomcat_install_base }}/{{ r_tomcat_version }}
+Environment=CATALINA_BASE={{ r_tomcat_install_base }}/{{ r_tomcat_version }}
+Environment=CATALINA_PID={{ r_tomcat_install_base }}/{{ r_tomcat_version }}/temp/tomcat.pid
+Environment='CATALINA_OPTS={{ r_tomcat_catalina_options }}'
+ExecStart={{ r_tomcat_install_base }}/{{ r_tomcat_version }}/bin/catalina.sh start
+ExecStop={{ r_tomcat_install_base }}/{{ r_tomcat_version }}/bin/catalina.sh stop
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+version: "3.8"
+services:
+  gitlab-ce:
+    container_name: {{ r_gitlab_docker_container_name }}
+    image: {{ r_gitlab_docker_image }}:{{ r_gitlab_docker_image_version }}
+    ports:
+      - "{{ r_gitlab_docker_ssh_port }}:22"
+      - "{{ r_gitlab_docker_http_port }}:80"
+      - "{{ r_gitlab_docker_https_port }}:443"
+    volumes:
+      - {{ r_gitlab_docker_config_vol }}:/etc/gitlab
+      - {{ r_gitlab_docker_log_vol }}:/var/log/gitlab
+      - {{ r_gitlab_docker_data_vol }}:/var/opt/gitlab
+    hostname: "{{ r_gitlab_docker_hostname }}"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url '{{ r_gitlab_docker_external_url }}'
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 70000
+        hard: 100000
+      core: 0
+      sigpending: 62793
+    sysctls:
+      net.core.somaxconn: 1024
+    restart: {{ r_gitlab_docker_restart_policy }}

@@ -1,0 +1,68 @@
+r_bacula_clients_configs: 
+  pg-02.iot.local:
+    options:
+      - name: Client
+        options:        
+          Name: "pg-02.iot.local-fd"
+          Address: 10.29.0.112
+          FDPort: 9102
+          Catalog: MyCatalog
+          Password: "6L8hAXhC3BES4OlbkI2F-v6Xq66Dem05v"
+      - name: FileSet
+        options:
+          Name: "PG-FS"
+          Include:
+            Options:
+              signature: MD5
+            File: 
+             - /etc/ceph
+             - /mnt/test
+      - name: FileSet
+        options:
+          Name: "PSQL"
+          Include:
+            Options:
+              signature: MD5
+            File: /opt/psql-backup                     
+      - name: Schedule
+        options:
+          Name: "PG-Daily"
+          Run: Full daily at 05:00
+      - name: Pool
+        options:
+          Name: PG-Pool        
+          Pool Type: Backup
+          Label Format: "RM-"
+      - name: Job
+        options:
+          Client: "pg-02.iot.local-fd"
+          Name: "PG-Backup"
+          JobDefs: "DefaultJob"
+          Enabled: yes
+          Level: Full
+          FileSet: "PG-FS"
+          Schedule: "PG-Daily"
+          Pool: "PG-Pool"
+          Storage: File1
+          Write Bootstrap: "/var/lib/bacula/RemoteBackup.bsr"
+  test.iot.local:
+    options:
+      - name: Client
+        options:        
+          Name: "test.iot.local-fd"
+          Address: 10.29.0.200
+          FDPort: 9102
+          Catalog: MyCatalog
+          Password: "6L8hAXhC3BES4OlbkI2F-v6Xq66Dem05v"    
+      - name: Job
+        options:
+          Client: "test.iot.local-fd"
+          Name: "test-Backup"
+          JobDefs: "DefaultJob"
+          Enabled: yes
+          Level: Full
+          FileSet: "PG-FS"
+          Schedule: "PG-Daily"
+          Pool: "PG-Pool"
+          Storage: File1
+          Write Bootstrap: "/var/lib/bacula/RemoteBackup.bsr"                

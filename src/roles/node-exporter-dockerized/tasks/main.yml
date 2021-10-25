@@ -1,0 +1,21 @@
+---
+- name: "Create directory for docker-compose file"
+  become: yes
+  file:
+    path: "{{ g_src_path }}/{{ r_ne_dock_project_path }}"
+    state: directory
+
+- name: "Create node-exporter docker-compose file"
+  template:
+    dest: "{{ g_src_path }}/{{ r_ne_dock_project_path }}/docker-compose.yml"
+    src: "docker-compose.j2"
+    owner: ansible
+    group: docker
+    mode: 644
+  become: yes
+
+- name: "run docker-compose to run node-exporter docker image"
+  become: yes
+  docker_compose:
+    project_src: "{{ g_src_path }}/{{ r_ne_dock_project_path }}"
+    state: present

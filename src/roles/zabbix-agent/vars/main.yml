@@ -1,0 +1,36 @@
+---
+# Zabbix yum repository config
+r_zabbix_yum_repo:
+  - name: zabbix
+    description: Zabbix Official Repository - $basesearch
+    baseurl: http://repo.zabbix.com/zabbix/{{ r_zabbix_agent_version }}/{{ r_zabbix_agent_os }}/{{ r_zabbix_agent_distribution_major_version }}/$basearch
+    priority: 1
+    enabled: 1
+    file: zabbix
+    gpgcheck: 0
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX
+    state: present
+  - name: zabbix-non-supported
+    description: Zabbix Official Repository non-supported - $basesearch
+    baseurl: http://repo.zabbix.com/non-supported/{{ r_zabbix_agent_os }}/{{ r_zabbix_agent_distribution_major_version }}/$basearch
+    priority: 1
+    enabled: 1
+    file: zabbix
+    gpgcheck: 0
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-ZABBIX
+    state: present 
+
+r_zabbix_agent_config_dafaults:
+  PidFile: /var/run/zabbix/zabbix_agent2.pid
+  LogFile: /var/log/zabbix/zabbix_agent2.log
+  DebugLevel: 3
+  Server: zabbix.fwut.xyz
+  ServerActive: zabbix.fwut.xyz
+  Hostname: "{{ r_zabbix_agent_hostname }}"
+  Timeout: "30"
+  Include: /etc/zabbix/zabbix_agent2.d/*.conf
+  ControlSocket: /tmp/agent.sock
+  TLSConnect: psk
+  TLSAccept: psk
+  TLSPSKFile: "{{ r_zabbix_agent_psk_file }}"
+  TLSPSKIdentity: "{{ r_zabbix_agent_psk_identity }}"

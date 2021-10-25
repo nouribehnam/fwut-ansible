@@ -1,0 +1,4 @@
+---
+r_bacula_client_workingdirectory: "/var/lib/bacula"
+r_bacula_client_piddirectory: "/run/bacula"
+r_bacula_client_plugindirectory: "/usr/lib/bacula"

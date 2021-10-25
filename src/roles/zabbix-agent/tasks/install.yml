@@ -1,0 +1,40 @@
+---
+  - name: "Zabbix agent linux specific tasks"
+    become: true
+    block:
+      - name: "Zabbix agent installation"
+        package: 
+          name: "{{ item.name }}"
+          state: "{{ item.state }}"
+        with_items: "{{ r_zabbix_agent_packages }}"
+        environment: 
+          http_proxy: http://proxy.fwut.local:3128
+          https_proxy: http://proxy.fwut.local:3128
+        
+      - name: Ensure Zabbix Key path is exist
+        file:
+          path: "{{ r_zabbix_agent_psk_file_path }}"
+          state: directory
+
+      - name: Ensure PSK file is exist
+        template:
+          src: secret.psk.j2
+          dest: "{{ r_zabbix_agent_psk_file_path }}/{{ r_zabbix_agent_psk_file_name }}"
+
+      - name: "Configure Zabbix agent2"
+        template:
+          src: zabbix_agent2.conf.j2
+          dest: "{{ r_zabbix_agent_conf_path }}/{{ r_zabbix_agent_conf_name }}"
+          owner: root
+          group: root
+          mode: 0644
+        vars:
+          r_zabbix_agent_config_final: "{{ r_zabbix_agent_config_dafaults | combine(r_zabbix_agent_config) }}"
+        notify:
+          - restart zabbix-agent
+
+      - name: "Make sure the zabbix-agent2 service is running"
+        systemd: 
+          name: "{{ r_zabbix_agent_service }}"
+          state: started
+          enabled: yes

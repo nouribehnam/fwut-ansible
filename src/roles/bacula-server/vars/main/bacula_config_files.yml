@@ -1,0 +1,5 @@
+---
+r_bacula_config_files:
+  - { src: "bacula-director-db.conf.j2", dest: "/etc/dbconfig-common/bacula-director-{{ r_bacula_dbtype }}.conf" }
+  - { src: "bacula-web-ctrl.j2", dest: "/etc/sudoers.d/bacula-web-ctrl" }
+  - { src: "send_telegram.j2", dest: "/etc/bacula/scripts/send_telegram", mode: '0755'  }

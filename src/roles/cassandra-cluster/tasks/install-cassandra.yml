@@ -1,0 +1,182 @@
+---
+
+- name: -- Remove swapfile from /etc/fstab --
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: --- Ensure lvm and mkfs.xfs package installed ----
+  ansible.builtin.package:
+      name: "{{ item }}"
+      state: present
+  with_items:
+      - lvm2
+      - xfsprogs    
+
+- name: --- Ensure python2.7 installed [for run cqlsh]----
+  ansible.builtin.package:
+      name: "{{ item }}"
+      state: present
+  with_items:
+      - python2.7
+          
+
+
+- name: --- Create data disk [VG]---
+  lvg: 
+    vg: "{{ general_config.create_data_disk.vg_name }}"
+    pvs: "{{ general_config.create_data_disk.device }}"
+    state: present
+  when: "{{ general_config.create_data_disk.present }}"
+
+- name: --- Create data disk [LV] ---
+  lvol: 
+    vg: "{{ general_config.create_data_disk.vg_name }}"
+    lv: "{{ general_config.create_data_disk.lv_name }}"
+    size: "{{ general_config.create_data_disk.lv_size }}"
+  when: "{{ general_config.create_data_disk.present }}"
+
+- name: --- Format data disk---- 
+  filesystem: 
+    fstype: "{{ general_config.create_data_disk.filesystem }}" 
+    dev: /dev/{{ general_config.create_data_disk.vg_name }}/{{ general_config.create_data_disk.lv_name }}
+  when: "{{ general_config.create_data_disk.present }}"
+
+- name: ---- Mount data disk ---
+  mount: 
+    name: "{{ general_config.create_data_disk.mount_point }}"
+    src: "/dev/{{ general_config.create_data_disk.vg_name }}/{{ general_config.create_data_disk.lv_name }}"
+    fstype: "{{ general_config.create_data_disk.filesystem }}"
+    state: mounted
+  when: "{{ general_config.create_data_disk.present }}"
+
+
+- name: --- Download cassandra packages '{{ general_config.cassandra_version }}' ---
+  get_url:
+    url: "{{ repo_info.protocol }}{{repo_info.url}}:{{ repo_info.port }}/artifactory/kafka-pakages/{{ general_config.cassandra_version }}"
+    dest: /opt/
+
+- name: --- extract archive cassandra '{{ general_config.cassandra_version }}'---
+  unarchive:
+    src: "/opt/{{ general_config.cassandra_version }}"
+    dest: "/opt/"
+    remote_src: yes 
+    list_files: yes
+  register: archive_cassandra_contents
+
+- name: Create group cassandra
+  group:
+    name: cassandra
+    state: present
+
+- name: --- Add user cassandra ---
+  user:
+    name: cassandra
+    comment: "cassandra user"
+    shell: /sbin/nologin
+    system: yes
+    group: cassandra
+    createhome: no
+
+
+- name: Change owner and group cassandra directory
+  file:
+    path: "/opt/{{ archive_cassandra_contents.files[0].split('/')[0] }}"
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+
+ 
+- name: Create symbolic link [cassandra] 
+  file:
+    src: "/opt/{{ archive_cassandra_contents.files[0].split('/')[0] }}"
+    dest: "/opt/cassandra"
+    state: link
+
+- name: Change owner and group cassandra link
+  file:
+    path: /opt/cassandra
+    owner: cassandra
+    group: cassandra
+    
+  
+- name: Create /var/lib directory
+  file:
+    path: /var/lib/cassandra
+    state: directory
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+
+- name: Create logs directory
+  file:
+    path: /var/log/cassandra
+    state: directory
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+
+- name: Create data and commitlog directory
+  file:
+    path: /cassandra/{{ item }}
+    state: directory
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+  with_items:
+      - data
+      - commitlog  
+
+
+- name: --- create Systemd for cassandra ----
+  template: 
+    src: cassandra-systemd.j2 
+    dest: /etc/systemd/system/cassandra.service
+
+- name: --- set config files ----
+  template: src={{item.src}} dest={{item.dest}}
+  with_items:
+     - { src: 'templates/cassandra.yaml.j2', dest: '/opt/cassandra/conf/cassandra.yaml' }
+     - { src: 'templates/cassandra-env.j2', dest: '/opt/cassandra/conf/cassandra-env.sh' }
+
+
+- name: --- Config Logrotate for zookeeper ---
+  template: 
+    src: cassandra-logrotat-conf.j2 
+    dest: /etc/logrotate.d/cassandra
+
+- name: chanage owner cassandra file to cassandra user 
+  file:
+    path: /var/log/cassandra
+    state: directory
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+
+- name: chanage owner cassandra file to cassandra user
+  file:
+    path: /var/lib/cassandra
+    state: directory
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+
+- name: chanage owner cassandra file to cassandra user 
+  file:
+    path: /opt/cassandra
+    state: directory
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+
+- name: --- daemon_reload ---- 
+  systemd:
+    name: cassandra
+    daemon_reload: yes
+    enabled: yes
+
+- name: --- restart cassandra ---  
+  service:
+    name: cassandra
+    state: restarted

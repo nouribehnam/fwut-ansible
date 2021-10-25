@@ -1,0 +1,57 @@
+---
+- name: ({{ project_name }}) Ensure download folder
+  file:
+    path: "{{ project_source.project.dest }}"
+    state: directory
+  delegate_to: "{{ (use_intermediate_server|bool and (project_source.intermediate is defined))|ternary(project_source.intermediate,inventory_hostname) }}"
+- name: ({{ project_name }}) Download source
+  include_tasks: 
+    file: "src/{{ project_source.type }}.yml"
+    apply:
+      delegate_to: "{{ (use_intermediate_server|bool and (project_source.intermediate is defined))|ternary(project_source.intermediate,inventory_hostname) }}"
+- name: ({{ project_name }}) Downloaded Source info
+  debug:
+    var: downloaded_source.msg
+- name: Intermediate downloaded file
+  when:
+    - use_intermediate_server|bool
+    - project_source.intermediate is defined
+  block:
+    - name: ({{ project_name }}) Ensure target source path
+      file:
+        path: "{{ project_source.project.dest }}"
+        state: directory
+    - name: ({{ project_name }}) Copy to destination host (from localhost)
+      synchronize:
+        src: "{{ downloaded_source.dest }}"
+        dest: "{{ downloaded_source.dest }}"
+        mode: push
+        use_ssh_args: yes
+      when:
+        - project_source.intermediate == 'localhost'
+    - name: ({{ project_name }}) Copy to destination host
+      synchronize:
+        src: "{{ downloaded_source.dest }}"
+        dest: "{{ downloaded_source.dest }}"
+        mode: push
+        dest_port: "{{ ansible_port }}"
+        use_ssh_args: yes
+      when:
+        - project_source.intermediate != 'localhost'
+      delegate_to: "{{ project_source.intermediate }}"
+    - name: ({{ project_name }}) Find intermediate downloaded sources
+      find:
+        paths: "{{ project_source.project.dest }}"
+        patterns: "{{ project_source.file_pattern|default(omit) }}"
+      register: r_local_projects_intr_source_files
+      delegate_to: "{{ project_source.intermediate }}"
+    - name: ({{ project_name }}) Remove old intermediate downloaded sources 
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ r_local_projects_intr_source_files.files|sort(attribute='mtime', reverse=True) }}"
+      loop_control:
+        label: "{{item.path}} - {{ '%Y-%m-%d %H:%M:%S'|strftime(item.mtime|string) }}"
+        extended: true
+      when: ansible_loop.index > (project_source.keep_intermediate|default(0))
+      delegate_to: "{{ project_source.intermediate }}"

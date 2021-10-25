@@ -1,0 +1,7 @@
+---
+- name: Enable backport for debian < 11
+  become: yes
+  apt_repository:
+    repo: deb http://deb.debian.org/debian {{ facts.distro_release }}-backports main
+    filename: debian-backport
+  when: facts.distro_major|int < 11

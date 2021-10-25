@@ -1,0 +1,7 @@
+---
+- name: Ensure elrepo releases
+  become: yes
+  yum:
+    name: "{{ os.packages.elrepo }}"
+    state: installed
+  when: "'elrepo' in os.packages"

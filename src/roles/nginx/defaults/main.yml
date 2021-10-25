@@ -1,0 +1,22 @@
+r_nginx_user: www-data
+r_nginx_group: www-data
+r_nginx_home_path: /srv/www
+r_nginx_config_path: /etc/nginx
+r_nginx_default_config_path: /etc/nginx/default.d
+r_nginx_extra_config_path: /etc/nginx/conf.d
+r_nginx_snippets_path: /etc/nginx/snippets
+r_nginx_sites_path: /etc/nginx/sites-enabled
+r_nginx_run_path: /var/run
+r_nginx_log_path: /var/log/nginx
+r_nginx_cache_path: /var/run/nginx/cache
+
+r_nginx_add_repo: yes
+r_nginx_repos:
+  centos:
+    '7':
+      url: https://download.nginx.com/linux/centos/7/$basearch/stable
+      gpg: https://download.nginx.com/linux/centos/gpg
+  debian:
+    '10':
+      url: http://nginx.org/packages/debian buster nginx
+      gpg: https://nginx.org/keys/nginx_signing.key

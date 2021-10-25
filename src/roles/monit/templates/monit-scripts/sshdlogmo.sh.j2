@@ -1,0 +1,23 @@
+#!/bin/bash
+
+ALERT_FILE=/etc/monit/tmp/pass_alert.log
+TIME_FILE=/etc/monit/tmp/pass_time.log
+TIME=$(cat ${TIME_FILE})
+HOSTNAME=$(hostname)
+
+#grep -A 1000 "$TIME" /var/log/auth.log | grep -v "$TIME" | grep sshd.\*Failed > ${ALERT_FILE}
+#grep -A 1000 "$TIME" /var/log/auth.log | grep -v "$TIME" | grep sshd.\*Did >> ${ALERT_FILE}
+#grep -A 1000 "$TIME" /var/log/auth.log | grep -v "$TIME" | grep sshd.\*Invalid >> ${ALERT_FILE}
+grep -A 1000 "$TIME" /var/log/secure | grep -v "$TIME" | grep sshd.\*Failed > ${ALERT_FILE}
+grep -A 1000 "$TIME" /var/log/secure | grep -v "$TIME" | grep sshd.\*Did >> ${ALERT_FILE}
+grep -A 1000 "$TIME" /var/log/secure | grep -v "$TIME" | grep sshd.\*Invalid >> ${ALERT_FILE}
+
+LOGIN_COUNT=$(cat ${ALERT_FILE} | wc -l)
+
+tail -n 1 /var/log/secure | awk '{print $1" "$2" "$3}' > ${TIME_FILE}
+
+if [ -s $ALERT_FILE ]; then
+        FILE_VALUE=$(cat $ALERT_FILE | awk '{$1="";$2="";$3="";$4="";print}')
+        {% include 'telegram_notify_block.j2' %}
+        {% include 'slack_notify_block.j2' %}         
+fi

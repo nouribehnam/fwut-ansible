@@ -1,0 +1,4 @@
+---
+mssql_path_docker: "docker"
+mssql_path_data: "data"
+mssql_path_logs: "logs"

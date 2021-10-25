@@ -1,0 +1,46 @@
+---
+- name: "Ensure working directory"
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory  
+  loop:
+    - "{{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}" 
+
+- name: "Create elasticsearch docker-compose file"
+  template:
+    dest: "{{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/docker-compose.yml"
+    src: "docker-compose.yml.j2"
+    owner: ansible
+    group: docker
+    mode: 644
+  become: yes
+
+- name: Elasticsearch Nodes Config
+  include_tasks:
+    file: config_nodes.yml
+  loop: "{{ elasticsearch.nodes|default({})|dict2items }}"
+  loop_control:
+    loop_var: node
+    label: "{{ node.key }}"
+  vars:
+    options: "{{ node.value }}"
+    node_name: "{{ node.key }}"
+
+- name: Elasticsearch Copy Certificate
+  include_tasks:
+    file: copy_cert.yml
+  loop: "{{ elasticsearch.nodes|default({})|dict2items }}"
+  loop_control:
+    loop_var: node
+    label: "{{ node.key }}"
+  vars:
+    options: "{{ node.value }}"
+    node_name: "{{ node.key }}"
+
+- name: "Execute docker-compose to run elasticsearch docker image"
+  become: yes
+  docker_compose:
+    project_src: "{{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}"
+    state: present
+    restarted: yes

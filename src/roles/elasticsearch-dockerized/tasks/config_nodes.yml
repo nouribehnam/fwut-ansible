@@ -1,0 +1,22 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Ensure node folder
+      file:
+        path: "{{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ node_name }}/{{ item }}/"
+        state: directory
+        owner: ansible
+        group: docker
+      with_items: "{{ r_elasticsearch_dock.directory }}"
+
+    - name: Ensure node config directory
+      template: 
+        src: "{{item.src}}"
+        dest: "{{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ node_name }}/config/{{item.dest}}"
+        owner: ansible
+        group: docker
+        mode: 0644  
+      with_items:
+        - { src: "jvm.options.j2", dest: "jvm.options" }
+        - { src: "elasticsearch.yml.j2", dest: "elasticsearch.yml" }

@@ -1,0 +1,6 @@
+---
+- when: False
+  block:
+    - import_tasks: "{{ tasks_path }}/centos_8/Networking.yml"
+    # - import_tasks: "{{ tasks_path }}/centos_8/Service.yml"
+    - import_tasks: "{{ tasks_path }}/centos_8/System.yml"

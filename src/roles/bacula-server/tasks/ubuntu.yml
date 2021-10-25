@@ -1,0 +1,76 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name:
+      - apt-transport-https
+      - gnupg2
+    state: present
+
+- name: Choose Packages mysql vs postgresql
+  set_fact:
+    bacula_packages:
+      - bacula-bscan
+      - bacula-common
+      - bacula-console
+      - bacula-director
+      - bacula-fd
+      - bacula-sd
+      - bacula-server
+      - bacula-common-mysql
+      - bacula-director-mysql
+  when: 'bacula_db_type == "mysql"'
+
+- name: Choose Packages mysql vs pgsql
+  set_fact:
+    bacula_packages:
+      - bacula-bscan
+      - bacula-common
+      - bacula-console
+      - bacula-director
+      - bacula-fd
+      - bacula-sd
+      - bacula-server
+      - bacula-common-pgsql
+      - bacula-director-pgsql
+  when: 'bacula_db_type == "pgsql"'
+
+- name: Install Bacula
+  apt:
+    name: "{{ bacula_packages }}"
+    state: "present"
+
+- name: Add Baculum (bacula web ui) Apt signing key
+  apt_key:
+    url: "{{ r_bacula_repo_key }}"
+    state: present
+
+- name: Add Baculum repository
+  apt_repository:
+    repo: 'deb {{ r_bacula_repos }} {{ facts.distro_release }} main'
+    state: present
+    update_cache: true
+
+- name: Install Baculum
+  apt:
+    name: "{{ packages }}"
+    state: "present"
+  vars:
+    packages:
+      - baculum-api
+      - baculum-api-apache2
+      - baculum-common
+      - baculum-web
+      - baculum-web-apache2
+
+- name: Enable the Apache2 module rewrite
+  apache2_module:
+    name: rewrite
+    state: present
+    
+- name: Enable baculum web site
+  command: a2ensite baculum-web
+
+- name: Enable baculum api site
+  command: a2ensite baculum-api
+  notify: restart apache2
+  

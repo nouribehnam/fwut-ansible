@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#dpkg -l | grep '^ii' | awk '{ print $2}' > /tmp/applist.list
+rpm -qa   > /tmp/applist.list
+
+###Sort and Compare old and new files
+CHANGE_FROM=$(comm -23 <(sort /etc/monit/tmp/applist.list) <(sort /tmp/applist.list))
+CHANGE_TO=$(comm -13 <(sort /etc/monit/tmp/applist.list) <(sort /tmp/applist.list))
+
+
+###Check if Change_from and Change_to is empty, it's mean no change was happend
+if [[ -z $CHANGE_FROM ]] && [[ -z $CHANGE_TO ]]; then
+        exit 0
+fi
+
+###save new created list as old list
+cp /tmp/applist.list /etc/monit/tmp/
+
+###Check if Change_from is empty then print new lines
+if [[ -z $CHANGE_FROM ]]; then
+        echo -e "Add: \n$CHANGE_TO"
+        exit 1
+fi
+
+###Check if Change_to is empty then print removed Lines
+if [[ -z $CHANGE_TO ]]; then
+        echo -e "Remove: \n$CHANGE_FROM"
+        exit 2
+fi
+###if non of statements are matched then print change_from and change_to values
+echo -e "Change From: \n$CHANGE_FROM \n\nTo: \n$CHANGE_TO"
+exit 3

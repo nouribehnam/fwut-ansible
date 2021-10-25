@@ -1,0 +1,15 @@
+set mail-format {
+   from: monit@arvancloud.com
+   subject: monit -- $HOST: $EVENT $SERVICE
+   message: $HOST: $EVENT Service $SERVICE
+                 Server:      $HOST
+                 Date:        $DATE
+                 Action:      $ACTION
+                 Host:        $HOST
+                 Description: $DESCRIPTION
+
+            Your faithful employee,
+            Monit
+ }
+
+

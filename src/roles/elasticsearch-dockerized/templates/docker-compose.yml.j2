@@ -1,0 +1,34 @@
+# Please do not change this file directly since it is managed by Ansible and will be overwritten
+version: "3.8"
+services:
+{% for host in elasticsearch.nodes %}
+  {{ elasticsearch.nodes[host].hostname }}:
+    image: "{{ r_elasticsearch_dock_elastic_image }}:{{ r_elasticsearch_dock_elastic_version }}"
+    container_name: {{ elasticsearch.nodes[host].hostname }}
+    restart: {{ r_elasticsearch_dock_doc_restart_policy }}
+    environment:
+      - ELASTIC_PASSWORD={{elasticsearch_password}}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - {{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ elasticsearch.nodes[host].hostname }}/data:/usr/share/elasticsearch/data
+      - {{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ elasticsearch.nodes[host].hostname }}/repo:/usr/share/elasticsearch/repo
+      - {{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ elasticsearch.nodes[host].hostname }}/ssl/elastic-certificates.p12:/usr/share/elasticsearch/config/elastic-certificates.p12:ro
+      - {{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ elasticsearch.nodes[host].hostname }}/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - {{ g_src_path }}/{{ r_elasticsearch_dock_project_path }}/{{ elasticsearch.nodes[host].hostname }}/config/jvm.options:/usr/share/elasticsearch/config/jvm.options
+    network_mode: host
+    logging:
+       driver: "json-file"
+       options:
+          max-size: "200k"
+          max-file: "10"
+    healthcheck:
+      test: ["CMD","curl","-k","-s","-f","-u","elastic:{{elasticsearch_password}}","http://localhost:{{elasticsearch.nodes[host].http_port}}/_cat/health"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      
+{% endfor %}      

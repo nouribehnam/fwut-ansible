@@ -1,0 +1,6 @@
+---
+php_fpm_73:
+    default_pool: www
+    pools:
+      www:
+        listen: unix:/run/php/php7.3-fpm.sock

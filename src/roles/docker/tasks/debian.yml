@@ -1,0 +1,28 @@
+---
+- name: Debian tasks
+  become: true
+  environment:
+    HTTP_PROXY: "{{ proxy.http }}"
+    HTTPS_PROXY: "{{ proxy.https }}" 
+  block:
+    - name: Add Docker repo
+      when:
+        - r_docker_add_repo
+        - not (r_docker_repos[facts.distro_lower][facts.distro_major]['disabled']|default(False))
+      block:
+        - name: Add Docker GPG key
+          apt_key: 
+            url: "{{ r_docker_repos[facts.distro_lower][facts.distro_major]['gpg'] }}"
+            state: present
+          when: "'gpg' in r_docker_repos[facts.distro_lower][facts.distro_major]"
+        - name: Add Debian repository
+          apt_repository:
+            repo: deb {{ r_docker_repos[facts.distro_lower][facts.distro_major]['url'] }}
+            update_cache: yes
+            filename: docker-ce-stable
+            state: present
+    - name: Remove Docker repo
+      when: (not r_docker_add_repo) or (r_docker_repos[facts.distro_lower][facts.distro_major]['disabled']|default(False))
+      file:
+        path: /etc/apt/sources.list.d/docker-ce-stable.list
+        state: absent

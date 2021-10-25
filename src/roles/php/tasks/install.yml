@@ -1,0 +1,17 @@
+---
+- name: Become
+  become: yes
+  block:
+  - name: version
+    tags: r_php_versions
+    include_tasks: install_version.yml
+    loop: "{{ php_versions|dict2items }}"
+    loop_control:
+      loop_var: phpinstance
+      label: "{{ phpinstance.key }}"
+    when: not phpinstance.value.disabled|default(False)
+  - name: Ensure {{ AppPHP_user }} user
+    user:
+      name: "{{ AppPHP_user }}"
+      system: yes
+      create_home: no

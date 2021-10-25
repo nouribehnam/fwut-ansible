@@ -1,0 +1,38 @@
+---
+- name: "Ensure zabbix python package"
+  become: yes
+  pip:
+    name: 
+      - zabbix-api
+  environment: 
+    HTTP_PROXY: "{{ (proxy.http is defined and not ho_has_internet) | ternary(proxy.http, omit, omit) }}"
+    HTTPS_PROXY: "{{ (proxy.https is defined and not ho_has_internet) | ternary(proxy.https, omit, omit) }}" 
+
+- name: "create new host or update existing host"
+  zabbix_host:
+    server_url: "{{ r_zabibx_host_server_url }}"
+    login_user: "{{ r_zabbix_host_user_name }}"
+    login_password: "{{ r_zabbix_host_user_password }}"
+    host_name: "{{ r_zabbix_host_uniq_hostname }}"
+    visible_name: "{{ r_zabbix_host_visible_name }}"
+    host_groups:
+      - "{{ r_zabbix_host_group_1 }}"
+    link_templates:
+      - "{{ r_zabbix_host_template_1 }}"
+    status: "{{ r_zabbix_host_status }}"
+    state: "{{ r_zabbix_host_state }}"
+    inventory_mode: "{{ r_zabbix_host_inventory_mode }}"
+    interfaces:
+      - type: "{{ r_zabbix_host_interface_1_type }}"
+        main: "{{ r_zabbix_host_interface_1_main }}"
+        ip: "{{ r_zabbix_host_interface_1_ip }}"
+        dns: "{{ r_zabbix_host_interface_1_dns }}"
+        port: "{{ r_zabbix_host_interface_1_port }}"
+    macros:
+      - macro: '{$ZABBIX_SERVER}'
+        value: "{{ r_zabibx_host_server_url }}"
+    tls_psk_identity: "{{ r_zabbix_host_uniq_hostname }}"
+    tls_connect: "{{ r_zabbix_host_tls_connect }}"
+    tls_accept: "{{ r_zabbix_host_tls_accept }}"
+    tls_psk: "{{ zabbix_agent_psk_secret }}"
+    description: "{{ r_zabbix_host_description }}"

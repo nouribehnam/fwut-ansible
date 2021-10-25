@@ -1,0 +1,62 @@
+---
+- name: init
+  when:
+    - (deploy_stage|default('init')) == 'init'
+  block:
+  - name: ({{ project_name }}) Ensure services folder
+    file:
+      path: "{{project_dest.systemd.path}}"
+      state: directory
+    when:
+      - project_dest.systemd.path is defined
+  - name: ({{ project_name }}) Ensure service file
+    template:
+      src: ini.j2
+      dest: "{{project_dest.systemd.path|default(ho_systemd_services_path)}}/{{project_dest.systemd.name|default(project_name)}}.service"
+    vars:
+      ini_content: "{{project_dest.systemd.service}}"
+  - name: ({{ project_name }}) Ensure service-stat file
+    copy:
+      src: services-stat
+      dest: "{{project_dest.systemd.path|default(ho_systemd_services_path)}}/"
+      mode: "0744"
+    when:
+      - project_dest.systemd.path is defined
+  - name: ({{ project_name }}) Ensure service file link
+    file:
+      path: "{{ho_systemd_services_path}}/{{project_dest.systemd.name|default(project_name)}}.service"
+      src: "{{project_dest.systemd.path}}/{{project_dest.systemd.name|default(project_name)}}.service"
+      state: link
+    when:
+      - project_dest.systemd.path is defined
+  - name: ({{ project_name }}) Ensure service is enabled
+    systemd:
+      name: "{{project_dest.systemd.name|default(project_name)}}"
+      enabled: yes
+      daemon_reload: yes
+- name: ({{ project_name }}) Stop service
+  systemd:
+    name: "{{project_dest.systemd.name|default(project_name)}}"
+    state: stopped
+  when: 
+    - (deploy_stage|default('init') == 'pre')
+    - project_dest.systemd.stop_first|default(False)
+- name: post
+  when:
+    - (deploy_stage|default('init')) == 'post'
+  block:
+  - name: ({{ project_name }}) Start Service
+    systemd:
+      name: "{{project_dest.systemd.name|default(project_name)}}"
+      state: started
+    when:
+      - project_dest.systemd.stop_first|default(False)
+  - name: ({{ project_name }}) Restart Service
+    systemd:
+      name: "{{project_dest.systemd.name|default(project_name)}}"
+      state: restarted
+      daemon_reload: yes
+    when:
+      - prj_deploy_changed|default(True)
+      - not (project_dest.systemd.stop_first|default(False))
+      - project_dest.systemd.require_restart|default(True)

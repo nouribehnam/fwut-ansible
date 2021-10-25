@@ -1,0 +1,5 @@
+---
+- name: Nothing to do
+  debug:
+    msg: Nothing to do
+  tags: never

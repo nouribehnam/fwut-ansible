@@ -1,0 +1,9 @@
+---
+
+r_elasticsearch_dock_elastic_image: "192.168.35.101:5000/elasticsearch"
+r_elasticsearch_dock_elastic_version: "7.9.2"
+r_elasticsearch_dock_doc_restart_policy: always
+
+timezone: Etc/UTC
+g_src_path: /usr/local/src
+r_elasticsearch_dock_project_path: elasticsearch-dockerized

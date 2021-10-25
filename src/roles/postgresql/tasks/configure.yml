@@ -1,0 +1,32 @@
+---
+- name: Configuration
+  become: yes
+  block:
+  - name: Configure global settings.
+    lineinfile:
+      dest: "{{ r_postgresql_postgresql_config_path }}/postgresql.conf"
+      regexp: "^#?{{ item.option }}.+$"
+      line: "{{ item.option }} = '{{ item.value }}'"
+      state: "present"
+      mode: 0644
+    with_items: "{{ r_postgresql_postgresql_global_config_options }}"
+    notify: restart postgresql
+
+  - name: Configure host based authentication (if entries are configured).
+    template:
+      src: "pg_hba.conf.j2"
+      dest: "{{ r_postgresql_postgresql_config_path }}/pg_hba.conf"
+      owner: "{{ r_postgresql_postgresql_user }}"
+      group: "{{ r_postgresql_postgresql_group }}"
+      mode: 0600
+    notify: restart postgresql
+    when: r_postgresql_postgresql_hba_entries | length > 0
+
+  - name: Ensure PostgreSQL unix socket dirs exist.
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: "{{ r_postgresql_postgresql_user }}"
+      group: "{{ r_postgresql_postgresql_group }}"
+      mode: "{{ r_postgresql_postgresql_unix_socket_directories_mode }}"
+    with_items: "{{ r_postgresql_postgresql_unix_socket_directories }}"

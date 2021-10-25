@@ -1,0 +1,28 @@
+Port {{ sshd_port | mandatory }}
+
+{% for address in management_ips|default(sshd_config.Listen) %}
+ListenAddress {{ address }}
+{% endfor %}
+
+{% for HostKey in sshd_config.HostKeys %}
+HostKey {{ HostKey }}
+{% endfor %}
+
+{% for oname,opt in sshd_config.options.items() %}
+{{ oname }} {{ opt }}
+{% endfor %}
+
+{% for ae in sshd_config.AcceptEnvs %}
+AcceptEnv {{ ae }}
+{% endfor %}
+
+{% for s in sshd_config.Subsystems %}
+Subsystem {{ s }}
+{% endfor %}
+
+{% for user, user_opts in system_users.items() if user_opts.active|default(True) and user_opts.sshd_config is defined %}
+Match User {{ user }}
+{% for key, value in user_opts.sshd_config.items() %}
+    {{ key }} {{ value }}
+{% endfor %}
+{% endfor %}

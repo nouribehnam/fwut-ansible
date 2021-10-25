@@ -1,0 +1,51 @@
+---
+- name: Install Elasticsearch
+  become: yes
+  block:
+  - name: Sysctl config
+    sysctl:
+      name: vm.max_map_count
+      value: "262144"
+      state: present
+      reload: yes
+
+  - name: Ensure working directory
+    file:
+      path: "{{ item }}"
+      state: directory  
+    loop:
+      - "{{ g_src_path }}/{{ r_elasticsearch_project_path }}" 
+
+  # - name: Include tasks for "{{ facts.os_info }}"
+  #   include_tasks: "{{ facts.distro_lower }}.yml"
+
+  - name: Comment elasticsearch default env.
+    lineinfile:
+      dest: /etc/default/elasticsearch
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - { regexp: '^ES_PATH_CONF', line: '#ES_PATH_CONF' }
+      - { regexp: '^ES_STARTUP_SLEEP_TIME', line: '#ES_STARTUP_SLEEP_TIME' }
+
+  - name: Elasticsearch Create Service
+    include_tasks:
+      file: create-service.yml
+    loop: "{{ elasticsearch.nodes|default({})|dict2items }}"
+    loop_control:
+      loop_var: node
+      label: "{{ node.key }}"
+    vars:
+      options: "{{ node.value }}"
+      node_name: "{{ node.key }}"
+
+  - name: Elasticsearch Nodes Config
+    include_tasks:
+      file: config-nodes.yml
+    loop: "{{ elasticsearch.nodes|default({})|dict2items }}"
+    loop_control:
+      loop_var: node
+      label: "{{ node.key }}"
+    vars:
+      options: "{{ node.value }}"
+      node_name: "{{ node.key }}"

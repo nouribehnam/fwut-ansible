@@ -1,0 +1,74 @@
+# monitoring variables
+
+# image and container variables
+r_zbx_server_dock_app_container_name: "zabbix-server-pgsql"
+r_zbx_server_dock_app_image: "zabbix/zabbix-server-pgsql"
+r_zbx_server_dock_app_image_version: "alpine-5.4-latest"
+
+r_zbx_server_dock_web_container_name: "zabbix-web-apache-pgsql"
+r_zbx_server_dock_web_image: "zabbix/zabbix-web-apache-pgsql"
+r_zbx_server_dock_web_image_version: "alpine-5.4-latest"
+
+r_zbx_server_dock_javagateway_container_name: "zabbix-javagateway"
+r_zbx_server_dock_javagateway_image: "zabbix/zabbix-java-gateway"
+r_zbx_server_dock_javagateway_image_version: "3.0-alpine-latest"
+
+r_zbx_server_dock_snmptraps_container_name: "zabbix-snmptraps"
+r_zbx_server_dock_snmptraps_image: "zabbix/zabbix-snmptraps"
+r_zbx_server_dock_snmptraps_image_version: "3.0.32-alpine"
+
+r_zbx_server_dock_db_container_name: "zabbix-db-pgsql" 
+r_zbx_server_dock_db_image: "postgres"
+r_zbx_server_dock_db_image_version: "12.4"
+
+# compose file location variables
+g_src_path: /usr/local/src
+r_zbx_server_dock_project_path: "monitoring"
+
+# network_mode can be host or default(port)
+r_zbx_server_dock_network_mode: "default"
+
+# set host_port if network_mode is set to to default
+r_zbx_server_dock_app_port: 10051
+r_zbx_server_dock_web_http_port: 8081
+r_zbx_server_dock_web_https_port: 4433
+r_zbx_server_dock_javagateway_port: 10052
+r_zbx_server_dock_snmptraps_port: 162
+r_zbx_server_dock_db_port: 5432
+
+# image restart policy
+r_zbx_server_dock_app_restart_policy: "always"
+r_zbx_server_dock_web_restart_policy: "always"
+r_zbx_server_dock_javagateway_restart_policy: "always"
+r_zbx_server_dock_snmptraps_restart_policy: "always"
+
+# Volumes related variables
+# Zabbix-server local Volumes locations
+r_zbx_server_dock_app_time_vol: /etc/localtime
+r_zbx_server_dock_app_timezone_vol: /etc/timezone
+r_zbx_server_dock_app_alertscripts_vol: /data/zabbix_server/usr/lib/zabbix/alertscripts
+r_zbx_server_dock_app_externalscripts_vol: /data/zabbix_server/usr/lib/zabbix/externalscripts
+r_zbx_server_dock_app_export_vol: /data/zabbix_server/var/lib/zabbix/export
+r_zbx_server_dock_app_modules_vol: /data/zabbix_server/var/lib/zabbix/modules
+r_zbx_server_dock_app_enc_vol: /data/zabbix_server/var/lib/zabbix/enc
+r_zbx_server_dock_app_sshkeys_vol: /data/zabbix_server/var/lib/zabbix/ssh_keys
+r_zbx_server_dock_app_mibs_vol: /data/zabbix_server/var/lib/zabbix/mibs
+r_zbx_server_dock_app_snmptraps_vol: /data/zabbix_server/var/lib/zabbix/snmptraps
+r_zbx_server_dock_app_config_vol: /data/zabbix_server/config
+
+# Zabbix-web local Volume locations
+r_zbx_server_dock_web_time_vol: /etc/localtime
+r_zbx_server_dock_web_timezone_vol: /etc/timezone
+r_zbx_server_dock_web_conf_vol: /data/zabbix_web/etc/conf
+r_zbx_server_dock_web_confd_vol: /data/zabbix_web/etc/conf.d
+r_zbx_server_dock_web_ssl_vol: /data/zabbix_web/etc/ssl/apache2
+r_zbx_server_dock_web_modules_vol: /data/zabbix_web/usr/share/zabbix/modules
+
+# pgsql port
+r_zbx_server_dock_db_data_vol: /data/postgresql/data
+
+# Zabbix-snmptraps local Volume locations
+r_zbx_server_dock_snmptraps_vol: /data/zabbix_snmptraps
+
+# Zabbix-server config vars
+r_zbx_server_dock_app_config: {}

@@ -1,0 +1,3 @@
+{% if notify_slack == true %}    
+         echo "Host: \`$MONIT_HOST\` \n Opreation: \`$MONIT_SERVICE\`  \n  Value: \`$FILE_VALUE\`." | xargs bash /usr/local/sbin/monit/slack.sh webhook_slack_url monitalert
+{% endif %}

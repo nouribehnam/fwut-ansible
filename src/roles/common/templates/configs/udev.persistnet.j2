@@ -1,0 +1,5 @@
+{% for ifname, network in (networks|default({})).items() %}
+{% if (network.enabled|default(True)) and ('mac' in network) %}
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="{{ network.mac }}", ATTR{dev_id}=="0x0", ATTR{type}=="1", NAME="{{ ifname | mandatory }}"
+{% endif %}
+{% endfor %}

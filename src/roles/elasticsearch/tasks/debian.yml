@@ -1,0 +1,23 @@
+---
+- name: Add required dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - gnupg2
+    state: present
+
+- name: Add Elasticsearch apt key
+  apt_key:
+    url: "{{ r_elasticsearch_elastic_repo }}/GPG-KEY-elasticsearch"
+    state: present
+
+- name: Add Elasticsearch repository
+  apt_repository:
+    repo: 'deb {{ r_elasticsearch_elastic_repo }} buster contrib non-free'
+    state: present
+    update_cache: true
+
+- name: Install Elasticsearch
+  package:
+    name: elasticsearch
+    state: present

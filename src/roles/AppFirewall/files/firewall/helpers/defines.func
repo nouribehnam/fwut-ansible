@@ -1,0 +1,98 @@
+#!/bin/bash
+
+###############################################################################
+#   Settings
+###############################################################################
+LOG_FILE="/dev/null"
+
+###############################################################################
+#   Variables
+###############################################################################
+ssh_port=22
+
+ipv4_color=96
+ipv6_color=93
+ipset_color=95
+color_reset="\e[0m"
+
+CONFIG_DIR=/etc/firewall
+
+VERBOSE=0
+DRY_RUN=0
+COLOR=1
+
+ACTION=status
+POSITIONAL=
+
+date_f=$(date)
+ts=$(date -d "$date_f" +%s)
+date_s=$(date -d "$date_f" +%Y-%m-%d)
+date_ss=$(date -d "$date_f" +%Y-%m-%d_%H-%M-%S)
+
+###############################################################################
+#   Iptables Helper
+###############################################################################
+IPT="IPT"
+IPT4="IPT"
+IPT6="IPT -6"
+IPT46="ipt46"
+IPS="IPS"
+
+IPT_LOG_PREFIX="iptables"
+
+# Tables
+FILTER="-t filter"
+MANGLE="-t mangle"
+NAT="-t nat"
+RAW="-t raw"
+
+tables="filter mangle nat raw"
+
+# Chains
+INPUT="-A INPUT"
+OUTPUT="-A OUTPUT"
+FORWARD="-A FORWARD"
+PREROUTING="-A PREROUTING"
+POSTROUTING="-A POSTROUTING"
+
+# Actions
+ACCEPT="-j ACCEPT"
+DROP="-j DROP"
+REJECT="-j REJECT"
+LOG="-j LOG --log-prefix $IPT_LOG_PREFIX"
+MASQUERADE="-j MASQUERADE"
+DNAT="-j DNAT --to"
+SNAT="-j SNAT --to"
+RETURN="-j RETURN"
+REDIRECT="-j REDIRECT --to-port"
+ADDTOSET="-j SET --add-set"
+
+# IPSet
+IPSET="-m set --match-set"
+IPNSET="-m set ! --match-set"
+
+# Mark
+MARK_set="-j MARK --set-mark"
+MARK_match="-m mark --mark"
+MARKED="-m mark ! --mark 0x00/0xFF"
+
+# Proto
+TCP="-p tcp"
+UDP="-p udp"
+ICMP="-p icmp"
+ICMP6="-p ipv6-icmp"
+
+# Port
+DPORT="--dport"
+SPORT="--sport"
+DPORTS="-m multiport --dports"
+SPORTS="-m multiport --sports"
+
+# Conntrack
+CTSTATE="-m conntrack --ctstate"
+SRECENT="-m recent --set --name"
+URECENT="-m recent --update --seconds"
+
+# Misc
+COMMENT="-m comment --comment"
+LIMIT="-m limit --limit"

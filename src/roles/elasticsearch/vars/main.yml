@@ -1,0 +1,13 @@
+---
+r_elasticsearch:  
+  directory:
+    - config
+    - data
+    - backup
+  
+  config_files:
+    - config/elastic-certificates.p12
+    - config/log4j2.properties
+    - config/roles.yml
+    - config/users
+    - config/users_roles

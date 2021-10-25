@@ -1,0 +1,24 @@
+---
+- name: Generate {{rules_version}} Custom rules
+  template:
+    src: rules/local_rules.j2
+    dest: "{{ r_AppFirewall.local_rules_folder }}/{{ '%02d'|format(item.value.priority|default(50)) }}-{{ item.key }}.{{rules_version}}.rules"
+    mode: 0644
+    validate: "{{ validation_cmd }}"
+  diff: yes
+  loop: "{{ firewall_rules|default({})|dict2items }}"
+  loop_control:
+    label: "{{ '%02d'|format(item.value.priority|default(50)) }}-{{ item.key }}"
+  when: not item.value.disabled|default(False)|bool
+  notify:
+    - Restart Firewall
+- name: Remove disabled {{rules_version}} Custom rules
+  file:
+    path: "{{ r_AppFirewall.local_rules_folder }}/{{ '%02d'|format(item.value.priority|default(50)) }}-{{ item.key }}.{{rules_version}}.rules"
+    state: absent
+  loop: "{{ firewall_rules|default({})|dict2items }}"
+  loop_control:
+    label: "{{ '%02d'|format(item.value.priority|default(50)) }}-{{ item.key }}"
+  when: item.value.disabled|default(False)|bool
+  notify:
+    - Restart Firewall

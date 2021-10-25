@@ -1,0 +1,33 @@
+---
+r_bacula_packages:
+  debian:
+    prereq:
+      - apt-transport-https
+      - gnupg2
+    bacula:
+      mysql:
+        - bacula-bscan
+        - bacula-common
+        - bacula-console
+        - bacula-director
+        - bacula-fd
+        - bacula-sd
+        - bacula-server
+        - bacula-common-mysql
+        - bacula-director-mysql
+      pgsql:
+        - bacula-bscan
+        - bacula-common
+        - bacula-console
+        - bacula-director
+        - bacula-fd
+        - bacula-sd
+        - bacula-server
+        - bacula-common-pgsql
+        - bacula-director-pgsql
+    bacula_web:
+      - baculum-api
+      - baculum-api-apache2
+      - baculum-common
+      - baculum-web
+      - baculum-web-apache2  

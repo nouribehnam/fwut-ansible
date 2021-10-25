@@ -1,0 +1,7 @@
+---
+- name: Deploy
+  include_tasks: deploy.yml
+  when: not mssql_instance.value.disabled|default(False)
+- name: Displaces
+  include_tasks: deploy.yml
+  when: not mssql_instance.value.disabled|default(False)

@@ -1,0 +1,4 @@
+{% if notify_telegram == true %}    
+        /usr/local/sbin/monit/sendtelegram.sh --icon 1F6A8 --text "\`$MONIT_SERVICE\`\n\`\`\`$MONIT_HOST\`\`\`\n\n\`$FILE_VALUE\`." > /dev/null
+#        echo "\`$MONIT_SERVICE\`\n\`\`\`$MONIT_HOST\`\`\`\n\n\`$FILE_VALUE\`." >/home/d.fazeli/CHANGE_TO
+{% endif %}

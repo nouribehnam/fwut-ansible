@@ -1,0 +1,28 @@
+- name: Default lists
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  diff: yes
+  loop: "{{ r_AppFirewall.generic_list_files }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify:
+    - Restart Firewall
+  tags:
+    - r_AppFirewall_default_lists
+- meta: flush_handlers
+- name: Default rules
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  diff: yes
+  loop: "{{ r_AppFirewall.generic_rule_files }}"
+  loop_control:
+    label: "{{ item.dest }}"
+  notify:
+    - Restart Firewall
+  tags:
+    - r_AppFirewall_default_rules
+- meta: flush_handlers

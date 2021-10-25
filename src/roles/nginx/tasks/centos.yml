@@ -1,0 +1,29 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Installation
+      tags: r_nginx_install
+      block:
+        - name: Ensure nginx repo
+          yum_repository:
+            name: nginx-stable
+            file: nginx
+            description: Nginx stable repo
+            baseurl: "{{ os.repositories.nginx.base }}"
+            gpgkey: "{{ os.repositories.nginx.gpg }}"
+            gpgcheck: yes
+            enabled: yes
+            # module_hotfixes: yes
+            proxy: "{{ proxy.http|default(omit) }}"
+          notify: yum-clean-metadata
+    - name: Remove
+      tags:
+        - never
+        - ROLE_NGINX_REMOVE
+      block:
+        - name: Remove nginx repo
+          file:
+            path: /etc/yum.repos.d/nginx.repo
+            state: absent
+          notify: yum-clean-metadata

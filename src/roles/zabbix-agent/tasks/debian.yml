@@ -1,0 +1,28 @@
+---
+- name: "Zabbix Debian repo and package installation"
+  become: yes
+  environment: 
+    HTTP_PROXY: http://proxy.fwut.local:3128
+    HTTPS_PROXY: http://proxy.fwut.local:3128
+  block:
+    - name: zabbix debian gpg key
+      apt_key:
+        url: http://repo.zabbix.com/zabbix-official-repo.key
+        state: present
+    - name: "Debian Zabbix deb repository"
+      environment: 
+        http_proxy: http://proxy.fwut.local:3128
+        https_proxy: http://proxy.fwut.local:3128
+      apt_repository:
+        repo: "deb https://repo.zabbix.com/zabbix/{{ r_zabbix_agent_version }}/debian {{ r_zabbix_agent_debian_version }} main"
+        state: present
+        update_cache: yes
+
+    - name: "Debian Zabbix deb-src repository"
+      environment: 
+        http_proxy: http://proxy.fwut.local:3128
+        https_proxy: http://proxy.fwut.local:3128
+      apt_repository:
+        repo: "deb-src https://repo.zabbix.com/zabbix/{{ r_zabbix_agent_version }}/debian {{ r_zabbix_agent_debian_version }} main"
+        state: present
+        update_cache: yes

@@ -1,0 +1,20 @@
+---
+r_zabibx_host_server_url: http://zabbix.fwut.xyz
+r_zabbix_host_user_name: api
+r_zabbix_host_user_password: "123456"
+r_zabbix_host_uniq_hostname: "{{ ansible_hostname }}"
+r_zabbix_host_visible_name: "{{ r_zabbix_host_uniq_hostname }}"
+r_zabbix_host_description: "{{ ansible_default_ipv4.address }}"
+r_zabbix_host_group_1: Linux servers
+r_zabbix_host_template_1: Linux by Zabbix agent
+r_zabbix_host_status: enabled
+r_zabbix_host_state: present
+r_zabbix_host_inventory_mode: automatic
+r_zabbix_host_interface_1_type: 1
+r_zabbix_host_interface_1_main: 1
+r_zabbix_host_interface_1_ip: ""
+r_zabbix_host_domain: "lab01.fwut.local"
+r_zabbix_host_interface_1_dns: "{{ r_zabbix_host_uniq_hostname }}.{{ r_zabbix_host_domain }}"
+r_zabbix_host_interface_1_port: "10050"
+r_zabbix_host_tls_accept: 2
+r_zabbix_host_tls_connect: 2

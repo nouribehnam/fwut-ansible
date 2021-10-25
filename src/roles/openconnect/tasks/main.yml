@@ -1,0 +1,32 @@
+---
+- name: Include tasks for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+  tags: always
+- name: flush handlers
+  meta: flush_handlers
+- name: Install Openconnect
+  import_tasks: install.yml
+  tags: r_openconnect_install
+- name: Openconnect Peers Config
+  include_tasks:
+    file: config_peer.yml
+    apply:
+      tags: r_openconnect_peers
+  loop: "{{ openconnect.peers|default({})|dict2items }}"
+  loop_control:
+    loop_var: peer
+    label: "{{ peer.key }}"
+  vars:
+    options: "{{ peer.value }}"
+    peer_name: "{{ peer.key }}"
+  tags: r_openconnect_peers
+  when: not (options.disabled|default(False))
+# - name: Openconnect sites config
+#   import_tasks: config_sites.yml
+# - name: Validate Openconnect config
+#   import_tasks: check_config.yml
+- name: Remove Openconnect
+  import_tasks: remove.yml
+  tags:
+    - never
+    - ROLE_NGINX_REMOVE

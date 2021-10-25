@@ -1,0 +1,8 @@
+---
+- name: Ensure Python and pip
+  become: yes
+  environment:
+    http_proxy: "{{ proxy.http is defined | ternary(proxy.http, None) }}"
+    https_proxy: "{{ proxy.https is defined | ternary(proxy.https, None) }}"
+  package: 
+    name: "{{ r_python_pkgs[facts.distro_lower] }}"

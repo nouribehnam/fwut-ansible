@@ -1,0 +1,72 @@
+#!/bin/bash
+
+cmd=/usr/sbin/openconnect
+peer=$1
+shift
+extra_args=$*
+connect() {
+        . $1
+        if [ -z "$ENDPOINTS" ]; then
+                echo "ENDPOINTS is mandatory"
+                return -1
+        fi
+
+        local endpoint="$(shuf -e $ENDPOINTS | head -n 1)"
+
+        function iae() {
+                if ! [ -z "$PASSWORD" ]; then
+                        echo "expect {
+                                Password {
+                                        send $(echo $PASSWORD | base64 --decode)\n
+                                        exp_continue
+                                }
+                                timeout abort
+                                connected
+                        }"
+                fi
+        }
+
+        function ia() {
+                if ! [ -z "$PASSWORD" ]; then
+                        echo $PASSWORD | base64 --decode
+                        echo
+                fi
+        }
+
+
+        local args="--setuid=nobody"
+        # local args=
+        if ! [ -z "$configfile" ]; then
+                local args="$args --config=$configfile"
+        fi
+        if ! [ -z "$background" ] && [ "$background" == "true" ]; then
+                local args="$args --background"
+        fi
+        if ! [ -z "$LOGIN" ]; then
+                local args="$args --user=$LOGIN"
+        fi
+
+        local args="$args $endpoint"
+        echo $cmd $args $extra_args
+        if [ -z "$(ia)" ]; then
+                $cmd $args $extra_args
+        else
+                ia | $cmd $args $extra_args
+        fi
+}
+
+if [ -z "$peer" ]; then
+        for i in $(ls /etc/openconnect/*.conf); do
+                connect $i
+        done
+else
+        if [ -f "$peer" ]; then
+                connect "$peer"
+        elif [ -f "/etc/openconnect/$peer/config" ]; then
+            connect "/etc/openconnect/$peer/config"
+        elif [ -f "/etc/openconnect/$peer" ]; then
+                connect "/etc/openconnect/$peer"
+        elif [ -f "/etc/openconnect/$peer.conf" ]; then
+                connect "/etc/openconnect/$peer.conf"
+        fi
+fi

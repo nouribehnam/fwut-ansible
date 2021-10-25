@@ -1,0 +1,50 @@
+---
+- name: Ensure tomcat group
+  group:
+    name: "{{ r_tomcat_group }}"
+    system: yes
+    state: present
+- name: Ensure tomcat user
+  user:
+    name: "{{ r_tomcat_user }}"
+    group: "{{ r_tomcat_group }}"
+    create_home: no
+    system: yes
+    shell: "{{ os.disabled_shell }}"
+    password: "{{ os.disabled_password|default('!') }}"
+- name: Ensure tomcat folder
+  file:
+    path: "{{ r_tomcat_install_base }}/{{ r_tomcat_version }}"
+    state: directory
+    owner: "{{ r_tomcat_user }}"
+    group: "{{ r_tomcat_group }}"
+    mode: 0755
+- name: Get tomcat package
+  get_url:
+    url: "{{ r_tomcat_url }}"
+    dest: "{{ r_tomcat_install_base }}/{{ r_tomcat_info.file_name }}"
+    checksum: "{{ r_tomcat_info.checksum }}"
+    use_proxy: "{{ (r_tomcat_info.need_internet and not ho_has_internet)|bool }}"
+  environment:
+    http_proxy: "{{ proxy.http is defined | ternary(proxy.http, None) }}"
+    https_proxy: "{{ proxy.https is defined | ternary(proxy.https, None) }}"
+- name: Extract base archive
+  unarchive:
+    src: "{{ r_tomcat_install_base }}/{{ r_tomcat_info.file_name }}"
+    dest: "{{ r_tomcat_install_base }}/{{ r_tomcat_version }}"
+    owner: "{{ r_tomcat_user }}"
+    group: "{{ r_tomcat_group }}"
+    extra_opts: "{{ r_tomcat_info.archive_extra|default(omit) }}"
+    remote_src: yes
+- name: Ensure tomcat systemd service file
+  template:
+    src: tomcat.service.j2
+    dest: /etc/systemd/system/tomcat-{{ r_tomcat_version }}.service
+  notify: Daemon Reload
+- name: Enforce handlers
+  meta: flush_handlers
+- name: Ensure tomcat service
+  systemd:
+    name: tomcat-{{ r_tomcat_version }}.service
+    enabled: yes
+    state: started

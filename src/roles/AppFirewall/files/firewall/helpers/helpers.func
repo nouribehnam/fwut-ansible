@@ -1,0 +1,156 @@
+#!/bin/bash
+function URECENT {
+    echo "-m recent --update --name $1 --seconds $2 --hitcount $3"
+}
+
+function ipt46 {
+    ARGS=
+    while [[ $# -gt 0 ]]; do
+        echo $1 | grep -q ' '
+        if [ $? -eq 0 ]; then
+            ARGS="$ARGS '$1'"
+        else
+            ARGS="$ARGS $1"
+        fi
+        shift;
+    done
+
+    $IPT $ARGS
+    $IPT6 $ARGS
+}
+
+function IPT {
+    ipt=iptables
+    ipt6=ip6tables
+
+    color=
+    rcolor=
+    if [ $COLOR -eq 1 ]; then
+        color="\e[${ipv4_color}m"
+        rcolor="\e[39m"
+    fi
+
+    cmd="$ipt"
+    if [ "$1" = "-6" ]; then
+        cmd="$ipt6"
+        if [ $COLOR -eq 1 ]; then
+            color="\e[${ipv6_color}m"
+        fi
+        shift
+    elif [ "$1" = "-46" ]; then
+        shift
+        ipt46 "$*"
+        return
+    fi
+    
+    ARGS=
+    while [[ $# -gt 0 ]]; do
+        echo $1 | grep -q ' '
+        if [ $? -eq 0 ]; then
+            ARGS="$ARGS '$1'"
+        else
+            ARGS="$ARGS $1"
+        fi
+        shift;
+    done
+
+    output=
+    if [ $DRY_RUN -eq 1 ]; then
+        output=
+    else
+        output=$(echo $ARGS | xargs $cmd 2>&1)
+    fi
+    result=$?
+    pout=
+
+    if [ $result -eq 0 ]; then
+        if [ $COLOR -eq 1 ]; then
+            status="\e[92mSUCCESS${color_reset} "
+        else
+            status="SUCCESS "
+        fi
+    else
+        output=$(echo "$output" | head -n 1)
+        if [ $COLOR -eq 1 ]; then
+            status="\e[91mFAILED ($result)${color_reset}: "
+        else
+            status="FAILED ($result): "
+        fi
+    fi
+
+    if [ $result -ne 0 ] || [ $VERBOSE -eq 1 ]; then
+        pout="\t$color$cmd $ARGS${color_reset}\n\t\t$status"
+    fi
+
+    pout="$pout$output"
+
+    if ! [ -z "$pout" ]; then
+        echo -e "$color$pout${color_reset}"
+    fi
+}
+
+function IPS {
+    ips=ipset
+    # ipt6=ip6tables
+
+    color=
+    
+    if [ $COLOR -eq 1 ]; then
+        color="\e[${ipset_color}m"
+    fi
+
+    cmd="$ips"
+    # if [ "$1" = "-6" ]; then
+    #     cmd="$ipt6"
+    #     shift
+    # elif [ "$1" = "-46" ]; then
+    #     shift
+    #     ipt46 "$*"
+    #     return
+    # fi
+
+    ARGS=
+    while [[ $# -gt 0 ]]; do
+        echo $1 | grep -q ' '
+        if [ $? -eq 0 ]; then
+            ARGS="$ARGS '$1'"
+        else
+            ARGS="$ARGS $1"
+        fi
+        shift;
+    done
+
+    output=
+    if [ $DRY_RUN -eq 1 ]; then
+        output=
+    else
+        output=$(echo $ARGS | xargs $cmd 2>&1)
+    fi
+    result=$?
+    pout=
+
+    if [ $result -eq 0 ]; then
+        if [ $COLOR -eq 1 ]; then
+            status="\e[92mSUCCESS${color_reset}"
+        else
+            status="SUCCESS "
+        fi
+    else
+        output=$(echo "$output" | head -n 1)
+        if [ $COLOR -eq 1 ]; then
+            status="\e[91mFAILED ($result)${color_reset}: "
+        else
+            status="FAILED ($result): "
+        fi
+    fi
+
+    if [ $result -ne 0 ] || [ $VERBOSE -eq 1 ]; then
+        pout="\t$color$cmd $ARGS${color_reset}\n\t\t$status"
+    fi
+
+    pout="$pout$output"
+
+    if ! [ -z "$pout" ]; then
+        echo -e "$color$pout${color_reset}"
+    fi
+}

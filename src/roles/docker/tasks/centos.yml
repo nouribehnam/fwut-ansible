@@ -1,0 +1,33 @@
+---
+- name: CentOS tasks
+  become: yes
+  block:
+  - name: Add repository
+    yum_repository:
+      name: docker-ce-stable
+      file: docker
+      description: Docker CE Stable - $basearch
+      baseurl: "{{ r_docker_repo[facts.distro_lower][facts.distro_major]['url']|mandatory }}"
+      gpgkey: "{{ r_docker_repo[facts.distro_lower][facts.distro_major]['gpg']|mandatory }}"
+      gpgcheck: yes
+      enabled: yes
+  - name: Ensure Best option is off for CentOS 8
+    lineinfile:
+      path: /etc/dnf/dnf.conf
+      regexp: 'best=.*'
+      line: best=False
+    when: facts.distro_major == "8"
+- name: Remove Docker
+  become: yes
+  tags:
+    - never
+    - APP_DOCKER_REMOVE
+  block:
+    - name: Remove Repo
+      file:
+        path: /etc/yum.repos.d/docker.repo
+        state: absent
+    - name: Best option for CentOS 8
+      debug: 
+        msg: "Please set best=True at file /etc/dnf/dnf.conf"
+      when: facts.distro_major == "8"

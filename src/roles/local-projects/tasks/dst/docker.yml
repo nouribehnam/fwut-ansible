@@ -1,0 +1,34 @@
+---
+- name: init
+  when:
+    - (deploy_stage|default('init')) == 'init'
+  block:
+  - name: ({{ project_name}}) Docker init
+    debug:
+      msg: Nothing to do
+- name: ({{ project_name}}) Stop service
+  community.docker.docker_container:
+    name: "{{project_dest.docker.name|default(project_name)}}"
+    state: stopped
+  when: 
+    - (deploy_stage|default('init') == 'pre')
+    - project_dest.docker.stop_first|default(False)
+- name: post
+  when:
+    - (deploy_stage|default('init')) == 'post'
+  block:
+  - name: ({{ project_name}}) Start Docker
+    community.docker.docker_container:
+      name: "{{project_dest.docker.name|default(project_name)}}"
+      state: started
+    when:
+      - project_dest.docker.stop_first|default(False)
+  - name: ({{ project_name}}) Restart Docker
+    community.docker.docker_container:
+      name: "{{project_dest.docker.name|default(project_name)}}"
+      restart: yes
+      state: started
+    when:
+      - prj_deploy_changed|default(True)
+      - not (project_dest.docker.stop_first|default(False))
+      - project_dest.docker.require_restart|default(True)

@@ -1,0 +1,15 @@
+{% if default_trust_list_v4 is defined %}
+{% for tl_name, tl_options in default_trust_list_v4.items() if not tl_options.disabled|default(False)|bool %}
+{{ tl_options|make_ipset_set(tl_name) }}
+{% for entry in tl_options.list_items|default([]) %}
+{{ entry|make_ipset_rule(tl_name) }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+create trusted list:set
+{% if default_trust_list_v4 is defined %}
+{% for tl_name,tl_options in default_trust_list_v4.items() if not tl_options.disabled|default(False)|bool %}
+add trusted {{ tl_name }}
+{% endfor %}
+{% endif %}

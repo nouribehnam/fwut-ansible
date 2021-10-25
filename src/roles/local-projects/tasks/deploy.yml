@@ -1,0 +1,36 @@
+---
+- name: ({{ project_name }}) Download
+  import_tasks: download.yml
+  tags: r_local_projects_deploy_download
+- name: ({{ project_name }}) Backup
+  import_tasks: backup.yml
+  tags: r_local_projects_deploy_backup
+- name: ({{ project_name }}) Pre-action
+  include_tasks:
+    file: "dst/{{ project_dest.type }}.yml"
+  vars:
+    deploy_stage: pre
+- name: ({{ project_name }}) Copy
+  import_tasks: copy.yml
+  tags: r_local_projects_deploy_copy
+- name: ({{ project_name }}) Config
+  import_tasks: config.yml
+  tags: r_local_projects_deploy_config
+- name: ({{ project_name }}) Run project
+  include_tasks:
+    file: "dst/{{ project_dest.type }}.yml"
+    apply:
+      tags: r_local_projects_deploy_run
+  vars:
+    deploy_stage: init
+  tags: r_local_projects_deploy_run
+- name: ({{ project_name }}) Post-action
+  include_tasks:
+    file: "dst/{{ project_dest.type }}.yml"
+  vars:
+    deploy_stage: post
+# - name: Update local-project facts
+#   copy:
+#     dest: /etc/ansible/facts.d/local-projects.fact
+#     content: "{{ facts.local['local-projects']|combine({project_name: {'current': downloaded_source.msg|default({})}}, recursive=True)| to_nice_json(indent=2) }}"
+#   tags: r_local_projects_deploy_facts

@@ -1,0 +1,5 @@
+---
+- name: Ensure firewalld package is not installed
+  package:
+    name: firewalld
+    state: absent

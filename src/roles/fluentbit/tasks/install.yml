@@ -1,0 +1,10 @@
+---
+- name: Deploy Fluentbit
+  include_tasks: "{{ facts.distro_lower }}.yml"
+
+- name: Install fluentbit package
+  package:
+    name: td-agent-bit
+    state: present
+    update_cache: true
+  notify: Restart Fluentbit service

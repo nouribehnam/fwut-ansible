@@ -1,0 +1,19 @@
+---
+- name: "Include tasks for {{ facts.os_info }}"
+  include_tasks:
+    file: "{{ facts.distro_lower }}.yml"
+    apply:
+      tags: r_zabbix_os_config
+  tags:
+    - always
+    - r_zabbix_os_config
+
+- name: Include installation tasks
+  import_tasks: install.yml
+  tags: r_zabbix_agent_install
+
+- name: Remove Zabbix Agent
+  tags:
+    - never
+    - ROLE_ZABBIX_REMOVE
+  import_tasks: remove.yml

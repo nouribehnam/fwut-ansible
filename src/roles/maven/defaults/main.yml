@@ -1,0 +1,3 @@
+r_maven_version: 3.6.3
+r_maven_install_base: /opt/maven
+# r_maven_java_home: /usr/lib/jvm/jre

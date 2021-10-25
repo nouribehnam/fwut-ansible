@@ -1,0 +1,10 @@
+---
+- name: Remove instance folders
+  file:
+    path: "{{ mssql_path_base }}/{{ mssql_instance.key }}/{{ item }}"
+    state: directory
+  loop:
+    - "{{ mssql_path_docker }}"
+    - "{{ mssql_path_data }}"
+    - "{{ mssql_path_logs }}"
+  when: mssql_instance.value.force_data_removal|default(False)

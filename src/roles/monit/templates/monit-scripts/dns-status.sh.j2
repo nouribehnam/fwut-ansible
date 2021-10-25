@@ -1,0 +1,11 @@
+#!/bin/bash
+
+A=$(timeout 2 dig +tries=2 @$1 $2 $3 +short)
+
+if [[ $? == 0 ]] && [[ -n $A  ]]; then
+    echo "DNS is OK"
+    exit 0
+else
+    echo "DNS request timed out" >> /dev/stderr
+    exit 1
+fi

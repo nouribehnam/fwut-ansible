@@ -1,0 +1,44 @@
+# Zabbix agent2 related variables
+r_zabbix_agent_version: 5.2
+r_zabbix_agent_minor_version: 2
+r_zabbix_agent_pkg: zabbix-agent2
+r_zabbix_agent_get_pkg: zabbix-get
+r_zabbix_agent_sender_pkg: zabbix-sender
+r_zabbix_agent_service: zabbix-agent2
+r_zabbix_agent_debian_version: buster
+
+# Zabbix agent packages item list
+r_zabbix_agent_packages:
+- name: zabbix-agent2
+  state: present
+- name: zabbix-get
+  state: present 
+- name: zabbix-sender
+  state: present
+
+r_zabbix_agent_os: rhel
+r_zabbix_agent_distribution_major_version: "{{ ansible_distribution_major_version }}"
+r_global_proxy: http://proxy.fwut.local:3128
+r_zabbix_agent_conf_path: /etc/zabbix
+r_zabbix_agent_conf_name: zabbix_agent2.conf
+r_zabbix_agent_repo_addr: https://repo.zabbix.com/zabbix/5.2/rhel/8/x86_64/zabbix-release-5.2-1.el8.noarch.rpm
+
+# Zabbix agent2 config related variables:
+r_zabbix_agent_server: zabbix.fwut.xyz
+r_zabbix_agent_server_active: zabbix.fwut.xyz
+r_zabbix_agent_hostname: "{{ ansible_hostname }}"
+r_zabbix_agent_pid_file_path: /var/run/zabbix/zabbix_agent2.pid
+r_zabbix_agent_log_file: /var/log/zabbix/zabbix_agent2.log
+r_zabbix_agent_debug_level: 3
+r_zabbix_agent_timeout: 30
+r_zabbix_agent_include_path: /etc/zabbix/zabbix_agent2.d/*.conf
+r_zabbix_agent_control_scoket: /tmp/agent.sock
+# Encryption related
+r_zabbix_agent_tls_connect: psk
+r_zabbix_agent_tls_accept: psk
+r_zabbix_agent_psk_file_path: /etc/zabbix/secret
+r_zabbix_agent_psk_file_name: secret.psk
+r_zabbix_agent_psk_identity: "{{ ansible_hostname }}"
+r_zabbix_agent_psk_file: "{{ r_zabbix_agent_psk_file_path }}/{{ r_zabbix_agent_psk_file_name }}"
+r_zabbix_agent_config: {}
+

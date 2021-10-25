@@ -1,0 +1,7 @@
+{% for s,ops in ini_content.items() %}
+[{{s}}]
+{% for opt,v in ops.items() %}
+{{opt}} = {{v}}
+{% endfor %}
+
+{% endfor %}

@@ -1,0 +1,25 @@
+---
+r_bacula_client_configs:
+  bacula-dir:
+    options:
+      - name: Director
+        options:
+          Name: "{{ r_bacula_server_name }}-dir"
+          Password: "{{ r_bacula_client_password }}"
+      - name: Director
+        options:
+          Name: "{{ r_bacula_client_name }}-mon"
+          Password: "{{ r_bacula_client_monitor_password }}"
+          Monitor: yes
+      - name: FileDaemon
+        options:
+          Name: "{{ r_bacula_client_name }}-fd"
+          FDport: 9102
+          WorkingDirectory: "{{ r_bacula_client_workingdirectory }}"
+          Pid Directory: "{{ r_bacula_client_piddirectory }}"
+          Plugin Directory: "{{ r_bacula_client_plugindirectory }}"
+          Maximum Concurrent Jobs: 20
+      - name: Messages
+        options:
+          Name: Standard
+          director: '{{ r_bacula_server_name }}-dir: all, !skipped, !restored'      

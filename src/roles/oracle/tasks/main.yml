@@ -1,0 +1,6 @@
+---
+- name: Include tasks for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+  tags: always
+- name: flush handlers
+  meta: flush_handlers

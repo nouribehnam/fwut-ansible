@@ -1,0 +1,63 @@
+---
+- name: Packaging
+  become: yes
+  tags:
+    - r_common_packages
+  block:
+  - name: Remove unused packages
+    package:
+      name: "{{ os.packages.unused }}"
+      state: absent
+    when: os.packages.unused is defined
+
+  - name: Install default packages
+    become: yes
+    package:
+      name: "{{ os.packages.common }}"
+      state: present
+    when: os.packages.common is defined
+  
+- name: Ensure default services are running
+  become: yes
+  tags:
+    - r_common_post_distro
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: "{{ os.default_services|default([]) }}"
+
+- name: System Users
+  include_tasks: 
+    file: Play_sysAdmin/ApplySystemUser.yml
+    apply:
+      tags: r_common_system_users
+  loop: "{{ system_users|dict2items }}"
+  loop_control:
+    loop_var: system_user
+    label: "{{ system_user.key }}"
+  tags: 
+    - r_common_system_users
+
+- name: Sysctl Default
+  include_tasks: 
+    file: Play_sysAdmin/ApplySysctlConfig.yml
+    apply:
+      tags: r_common_sysctl_config
+  vars:
+    sysctl_config: "{{ sysctl_default }}"
+  tags: 
+    - r_common_sysctl_config
+
+- name: Apply ssh config
+  become: yes
+  template:
+    src: configs/sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    mode: 0444
+    owner: root
+    group: root
+    validate: "{{ os.commands.sshd_validation }}"
+  notify:
+    - "Restart Services 'ssh'"
+  tags: r_common_ssh

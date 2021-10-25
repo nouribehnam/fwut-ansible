@@ -1,0 +1,20 @@
+---
+# docker_compose_variables
+r_ne_dock_container_name: "node-exporter"
+r_ne_dock_docker_image: "prom/node-exporter"
+r_ne_dock_docker_image_version: "latest"
+
+# network_mode can be host or default
+r_ne_dock_network_mode: "default"
+# set host_port if network_mode is set to to default
+r_ne_dock_host_port: 9100
+r_ne_dock_doc_restart_policy: "always"
+
+g_src_path: /usr/local/src
+r_ne_dock_project_path: "node-exporter-dockerized"
+
+# Volumes
+r_ne_dock_proc_vol: /proc
+r_ne_dock_sys_vol: /sys
+r_ne_dock_slash_vol: /
+ 

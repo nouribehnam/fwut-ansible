@@ -1,0 +1,13 @@
+---
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+
+- name: Check whether a package called vmware-tools is installed
+  debug:
+    msg: "{{ ansible_facts.packages['vmware-tools'] | length }} versions of vmware-tools are installed!"
+  when: "'vmware-tools' in ansible_facts.packages"
+
+- name: Install open-vm-tools
+  import_tasks: install.yml
+  when: "'vmware-tools' not in ansible_facts.packages"

@@ -1,0 +1,19 @@
+---
+- name: setup RedHat
+  become: yes
+  block:
+  - name: Ensure PostgreSQL packages are installed.
+    yum:
+      name: "{{ r_postgresql_postgresql_packages }}"
+      state: present
+      enablerepo: "{{ r_postgresql_postgresql_enablerepo | default(omit, true) }}"
+      # Don't let postgresql-contrib cause the /usr/bin/python symlink
+      # to be installed, which breaks later Ansible runs on Fedora 30,
+      # and affects system behavior in multiple ways.
+      exclude: python-unversioned-command
+
+  - name: Ensure PostgreSQL Python libraries are installed.
+    yum:
+      name: "{{ r_postgresql_postgresql_python_library }}"
+      state: present
+      enablerepo: "{{ r_postgresql_postgresql_enablerepo | default(omit, true) }}"

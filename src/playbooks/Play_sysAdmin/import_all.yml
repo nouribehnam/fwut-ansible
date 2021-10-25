@@ -1,0 +1,12 @@
+---
+- name: Disable all
+  when: False
+  tags: never
+  block:
+    - import_tasks: ApplySystemUser.yml
+    - import_tasks: generic/UserManagement.yml
+    - import_tasks: generic/SystemManagement.yml
+    - import_tasks: generic/ServiceManagement.yml
+    - import_tasks: ApplySysctlConfig.yml
+    - import_tasks: centos_8/tasks.yml
+    - import_tasks: ubuntu_18/tasks.yml

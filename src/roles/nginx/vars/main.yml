@@ -1,0 +1,31 @@
+AppNginx:
+  validation: nginx -t
+  paths:
+    - "{{ r_nginx_config_path }}"
+    - "{{ r_nginx_default_config_path }}"
+    - "{{ r_nginx_extra_config_path }}"
+    - "{{ r_nginx_sites_path }}"
+    - "{{ r_nginx_snippets_path }}"
+    - "{{ r_nginx_log_path }}"
+    - "{{ r_nginx_home_path }}/default"
+
+  config_templates:
+    - { src: 'tmpfiles.d.j2', dest: '/usr/lib/tmpfiles.d/nginx.conf' }
+    - { src: 'nginx.conf.j2', dest: '{{ r_nginx_config_path }}/nginx.conf' }
+    - { src: 'default.conf.j2', dest: '{{ r_nginx_config_path }}/conf.d/default.conf' }
+    - { src: 'http.conf.j2', dest: '{{ r_nginx_config_path }}/conf.d/http.conf' }
+
+  file_paths:
+    error: "{{ r_nginx_log_path }}/error.log"
+    access: "{{ r_nginx_log_path }}/access.log"
+    pid: "{{ r_nginx_run_path }}/nginx.pid"
+    cache: "{{ r_nginx_cache_path }}"
+
+r_nginx_packages:
+  centos:
+    - nginx
+  debian:
+    - nginx
+  ubuntu:
+    - nginx
+

@@ -1,0 +1,57 @@
+---
+- name : "Become block"
+  become: yes
+  block:
+    - name: "Ensure working directory"
+      file:
+        path: "{{ g_src_path }}/{{ r_zbx_server_dock_project_path }}"
+        state: directory
+    - name: "Generate Zabbix-server docker-compose file"
+      template:
+        dest: "{{ g_src_path }}/{{ r_zbx_server_dock_project_path }}/docker-compose.yml"
+        src: "docker-compose.j2"
+        owner: ansible
+        group: docker
+        mode: 0755
+    - name: "Add zabbix user"
+      user:
+        name: zabbix
+        comment: zabbix user
+        group: root
+    - name: "Create Zabbix_server data folder"
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: zabbix
+        mode: 0777
+      loop:
+        - /data
+        - /data/zabbix_server
+        - /data/zabbix_server/config
+    - name: "Generate zabbix-server config file"
+      template:
+        dest: /data/zabbix_server/config/zabbix_server.conf
+        src: "zabbix_server.conf.j2"
+        owner: zabbix
+        mode: 0644
+      vars:
+        r_zbx_server_dock_app_config_final: "{{ r_zbx_server_dock_app_config | combine(r_zbx_server_default_config) }}"
+    - name: "Copy env files to compose file dest"
+      copy:
+        src: '{{item}}'
+        dest: "{{ g_src_path }}/{{ r_zbx_server_dock_project_path }}"
+        mode: 0655
+      loop:
+        - files/.env_srv
+        - files/.env_web
+        - files/.env_java
+        - files/.env_db_pgsql
+    - name: "execute docker-compose to run zabbix-server docker images"
+      docker_compose:
+        project_src: "{{ g_src_path }}/{{ r_zbx_server_dock_project_path }}"
+        state: present
+    - name: "execute docker-compose to run zabbix-server docker images"
+      docker_compose:
+        project_src: "{{ g_src_path }}/{{ r_zbx_server_dock_project_path }}"
+        state: present
+        restarted: yes

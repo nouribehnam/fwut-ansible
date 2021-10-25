@@ -1,0 +1,6 @@
+check process cron-process with pidfile "/var/run/crond.pid"
+  start program = "/bin/systemctl start cron"
+  stop program  = "/bin/systemctl stop cron"
+  restart program  = "/bin/systemctl restart cron"
+  if does not exist then restart
+  if 2 restarts within 2 cycles then exec "/usr/local/sbin/monit/change_state_file.sh"

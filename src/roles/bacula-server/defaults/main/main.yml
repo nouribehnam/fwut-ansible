@@ -1,0 +1,35 @@
+---
+r_bacula_dbtype: pgsql
+r_bacula_dbname: bacula
+r_bacula_dballow: ""
+r_bacula_dbserver: localhost
+r_bacula_dbport: ''
+
+r_bacula_install: 'true'
+r_bacula_upgrade: 'true'
+r_bacula_remove: 'true'
+r_bacula_basepath: ''
+r_bacula_ssl: ''
+
+r_bacula_config_dir: /etc/bacula
+
+r_bacula_default_configs: {}
+
+r_bacula_install_webgui: yes
+r_bacula_restore_dir: "/opt/bacula-restore"
+r_bacula_archive_dir: "/opt/bacula-archive"
+
+r_bacula_repos:
+  debian_10:
+      repo: "http://www.bacula.org/downloads/baculum/stable/debian stretch main"
+      gpg_key: "http://www.bacula.org/downloads/baculum/baculum.pub"
+
+r_bacula_db_config:
+  mysql:
+    dbadmin:  root
+    authmethod_admin: ''
+    authmethod_user: ''
+  pgsql:
+    dbadmin: postgres
+    authmethod_admin: 'ident'
+    authmethod_user: 'password'

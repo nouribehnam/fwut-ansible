@@ -1,0 +1,33 @@
+---
+- name: Linux based os bootstraping
+  when: facts.system|lower == "linux"
+  block:  
+  - name: Pre Distro
+    import_tasks: linux/PreDistro.yml
+    tags:
+      - r_common_generic
+  - name: Distro
+    include_tasks:
+      file: "linux/{{ facts.distro_lower }}.yml"
+      apply:
+        tags: r_common_distro
+    tags:
+      - always
+  - name: Post Distro
+    import_tasks: linux/PostDistro.yml
+    tags: 
+      - r_common_post_distro
+  - name: Saving bootstrap fact
+    become: yes
+    template:
+      src: json.yml
+      dest: /etc/ansible/facts.d/bootstrap_info.fact
+    vars:
+      json_data:
+        date_time: "{{ansible_facts.date_time}}"
+    tags: test_facts
+- name: Windows based os boostraping
+  when: facts.system|lower == "windows"
+  block:
+  - debug:
+      msg: "Hello windows"

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for i in $(ls | grep -v services-stat); do
+        echo "*****************************************************************************"
+        echo -ne "$i => \n\t"
+        systemctl is-active $i
+        echo -ne "\t"
+        systemctl is-enabled $i
+        systemctl status --no-pager --lines 5 $i
+done

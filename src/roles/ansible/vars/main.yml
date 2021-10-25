@@ -1,0 +1,6 @@
+---
+AnisbleNode:
+  path: /opt/ansible
+  repo: 
+    url: https://arash:warchief@code.ecla.ir/arash/ansible.git
+    

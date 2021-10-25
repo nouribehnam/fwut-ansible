@@ -1,0 +1,35 @@
+#!/bin/bash
+env
+routes=$(env | grep X-CSTP-Split-Include)
+internal_addr=$(env | grep INTERNAL_IP4_ADDRESS)
+internal_netmask=$(env | grep INTERNAL_IP4_NETMASK)
+
+ip link set $TUNDEV mtu $INTERNAL_IP4_MTU
+ip addr add $INTERNAL_IP4_ADDRESS/$INTERNAL_IP4_NETMASK dev $TUNDEV
+ip link set $TUNDEV up
+
+i=0
+while [ $i -lt $CISCO_SPLIT_INC ]; do
+    addrv=CISCO_SPLIT_INC_${i}_ADDR
+    maskv=CISCO_SPLIT_INC_${i}_MASK
+    cidrv=CISCO_SPLIT_INC_${i}_MASKLEN
+    if [ -z "${!addrv}" ]; then
+        continue
+    fi
+
+    {% if not options.skip_route_add|default(False) -%}
+    echo "ip route add ${!addrv}/${!cidrv} dev $TUNDEV table {{ options.route_table|default(r_openconnect_script_files_route_table) }}"
+    ip route add ${!addrv}/${!cidrv} dev $TUNDEV table {{ options.route_table|default(r_openconnect_script_files_route_table) }}
+    {% endif -%}
+
+    i=$((i+1))
+done
+
+{% if 'routes' in options %}{% for route in options.routes -%}
+echo "ip route add ${!addrv}/${!cidrv} dev $TUNDEV table {{ options.route_table|default(r_openconnect_script_files_route_table) }}"
+ip route add {{ route }} dev $TUNDEV table {{ options.route_table|default(r_openconnect_script_files_route_table) }}
+{% endfor -%}{% endif %}
+
+ip route flush cache
+
+exit 0

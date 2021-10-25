@@ -1,0 +1,29 @@
+# prometheus variables
+
+# docker_compose_variables
+r_prometheus_docker_container_name: "prom-test"
+r_prometheus_docker_image: "prom/prometheus"
+#r_prometheus_docker_image_version: "v2.29.2"
+r_prometheus_docker_image_version: "latest"
+r_prometheus_docker_hostname: "prom-test"
+
+g_src_path: /usr/local/src
+r_prometheus_docker_project_path: "prom-test"
+
+# network_mode can be host or default
+r_prometheus_docker_network_mode: "default"
+
+# set host_port if network_mode is set to to default
+r_prometheus_docker_http_port: 9060
+r_prometheus_docker_restart_policy: "always"
+
+# Volumes
+r_prometheus_docker_config_vol: /usr/local/src/prom-test/prom-test.yml
+r_prometheus_docker_data_vol: /prom-test
+#r_prometheus_docker_log_vol: /data/prom/var/log/prom
+#r_prometheus_docker_config_vol: /data/monitoring/prom/prom-test.yml
+
+
+
+
+

@@ -1,0 +1,5 @@
+---
+- name: Ensure ufw package is not installed
+  package:
+    name: ufw
+    state: absent

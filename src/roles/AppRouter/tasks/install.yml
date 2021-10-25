@@ -1,0 +1,6 @@
+---
+- name: Ensure router packages
+  package:
+    name: '{{ os.packages.router }}'
+    state: present
+  tags: r_AppRouter_packages

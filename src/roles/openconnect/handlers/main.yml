@@ -1,0 +1,12 @@
+---
+- name: Restart Openconnect
+  become: yes
+  systemd:
+    name: openconnect@{{ peer.key }}
+    state: restarted
+  loop: "{{openconnect.peers|default({})|dict2items }}"
+  loop_control:
+    label: "{{ peer.key }}"
+    loop_var: peer
+  when: not item.value.disabled|default(False)
+  

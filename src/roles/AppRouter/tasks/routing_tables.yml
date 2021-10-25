@@ -1,0 +1,24 @@
+---
+- name: Ensure Routing Tables
+  template:
+    src: rt_tables.j2
+    dest: /etc/iproute2/rt_tables
+# - name: Ensure Routing Tables
+#   lineinfile:
+#     path: /etc/iproute2/rt_tables
+#     regexp: '^{{ item.value }}\s.*'
+#     line: "{{ item.value }}\t{{ item.key }}"
+#   loop: "{{ router.tables|default({})|dict2items }}"
+#   loop_control:
+#     label: "{{ item.key }}"
+#   when: not item.value.disabled|default(False)
+#   notify: Flush Routing Cache
+# - name: Remove disabled Routing Tables
+#   lineinfile:
+#     path: /etc/iproute2/rt_tables
+#     regexp: '^{{ item.value }}\s.*'
+#     state: absent
+#   loop: "{{ router.tables|default({})|dict2items }}"
+#   loop_control:
+#     label: "{{ item.key }}"
+#   when: item.value.disabled|default(False)

@@ -1,0 +1,17 @@
+---
+- name: Test Firewall settings
+  when: not ansible_check_mode
+  block:
+    - name: Run test command
+      command:
+        cmd: "/usr/sbin/firewall check"
+      changed_when: no
+      failed_when: no
+      register: firewall_test_result
+    - debug:
+        msg: "{{ [firewall_test_result.stdout_lines, firewall_test_result.stderr.split('\n')]|flatten }}"
+    - assert:
+        quiet: yes
+        fail_msg: "Failed to validate firewall config"
+        that:
+          - firewall_test_result.rc == 0

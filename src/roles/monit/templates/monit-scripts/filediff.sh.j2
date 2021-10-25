@@ -1,0 +1,43 @@
+#!/bin/bash
+###if $1 is empty exit with error code 1
+[[ -z $1 ]] &&  { echo "Error: Path Argument is Empty" ; exit 1; }
+
+###GET filename from Path
+FILENAME=$(basename $1)
+HOSTNAME=$(hostname)
+
+###Sort and Compare old and new files
+CHANGE_FROM=$(comm -23 <(sort /etc/monit/tmp/$FILENAME) <(sort $1))
+CHANGE_TO=$(comm -13 <(sort /etc/monit/tmp/$FILENAME) <(sort $1))
+
+###Check if Change_from and Change_to is empty, it's mean no change was happend
+if [[ -z $CHANGE_FROM ]] && [[ -z $CHANGE_TO ]]; then
+        cp $1 /etc/monit/tmp/
+        exit 0
+fi
+
+###Check if Change_from is empty then print new lines
+if [[ -z $CHANGE_FROM ]]; then
+    {% include 'telegram_notify_block.j2' %}
+    {% include 'slack_notify_block.j2' %}
+    cp $1 /etc/monit/tmp/
+    exit 0
+fi
+
+
+###Check if Change_to is empty then print removed Lines
+if [[ -z $CHANGE_TO ]]; then
+        #echo -e "Remove: \n$CHANGE_FROM"  ##FOR TEST
+    {% include 'telegram_notify_block.j2' %}
+    {% include 'slack_notify_block.j2' %}
+    cp $1 /etc/monit/tmp/
+    exit 0
+fi
+###if non of statements are matched then print change_from and change_to values
+    {% include 'telegram_notify_block.j2' %}
+    {% include 'slack_notify_block.j2' %}
+
+cp $1 /etc/monit/tmp/
+exit 0
+
+

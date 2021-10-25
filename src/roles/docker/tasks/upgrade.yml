@@ -1,0 +1,6 @@
+- name: Ensure docker-compose program
+  get_url:
+    url: "{{ os.packages.docker_compose }}"
+    dest: "{{ dc_bin_path }}"
+    force: yes
+  when: facts.local.docker_compose['version']|default(None) != app_versions.docker_compose

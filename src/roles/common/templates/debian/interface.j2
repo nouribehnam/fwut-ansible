@@ -1,0 +1,29 @@
+{{ net.up_mode|default("auto") }} {{ iface | mandatory }}
+{% for opts in net.options -%}
+{% if 'inet' in opts %}
+iface {{ iface|mandatory }} inet {{ opts.inet }}
+{% elif 'inet6' in opts %}
+iface {{ iface|mandatory }} inet6 {{ opts.inet6 }}
+{% endif %}
+{% for key, value in opts.items() %}
+{%- if key in ("inet", "inet6") %}
+{# Nothing to do here #}
+{% elif key == "routes" %}
+    {% for r in value -%}
+    post-up /sbin/ip route add {{ r }} dev {{ iface }}
+    {% endfor %}
+{% elif key == "rules" %}
+    {% for r in value -%}
+    post-up /sbin/ip rule add {{ r }} 2>/dev/null
+    post-down while $(/sbin/ip rule del {{ r }} 2>/dev/null); do echo removed {{ r }} from routing rules; done
+    {% endfor %}
+{% elif value|type_debug == "list" %}
+    {% for item in value -%}
+    {{ key }} {{ item }}
+    {% endfor %}
+{% else %}
+    {{ key }} {{ value }}
+{% endif %}
+{% endfor %}
+
+{% endfor %}

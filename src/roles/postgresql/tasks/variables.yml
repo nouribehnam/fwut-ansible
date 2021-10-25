@@ -1,0 +1,51 @@
+---
+# Variable configuration.
+- name: Include OS-specific variables (Debian).
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+  when: ansible_os_family == 'Debian'
+
+- name: Include OS-specific variables (RedHat).
+  include_vars: "{{ ansible_os_family }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+  when:
+  - ansible_os_family == 'RedHat'
+  - ansible_distribution != 'Fedora'
+
+- name: Include OS-specific variables (Fedora).
+  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version.split('.')[0] }}.yml"
+  when: ansible_distribution == 'Fedora'
+
+- name: Define postgresql_packages.
+  set_fact:
+    r_postgresql_postgresql_packages: "{{ r_postgresql_postgresql_packages | list }}"
+  when: r_postgresql_postgresql_packages is not defined
+
+- name: Define postgresql_version.
+  set_fact:
+    r_postgresql_postgresql_version: "{{ r_postgresql_postgresql_version }}"
+  when: r_postgresql_postgresql_version is not defined
+
+- name: Define postgresql_daemon.
+  set_fact:
+    r_postgresql_postgresql_daemon: "{{ r_postgresql_postgresql_daemon }}"
+  when: r_postgresql_postgresql_daemon is not defined
+
+- name: Define postgresql_data_dir.
+  set_fact:
+    r_postgresql_postgresql_data_dir: "{{ r_postgresql_postgresql_data_dir }}"
+  when: r_postgresql_postgresql_data_dir is not defined
+
+- name: Define postgresql_bin_path.
+  set_fact:
+    r_postgresql_postgresql_bin_path: "{{ r_postgresql_postgresql_bin_path }}"
+  when: r_postgresql_postgresql_bin_path is not defined
+
+- name: Define postgresql_config_path.
+  set_fact:
+    r_postgresql_postgresql_config_path: "{{ r_postgresql_postgresql_config_path }}"
+  when: r_postgresql_postgresql_config_path is not defined
+
+- name: Define postgresql_unix_socket_directories_mode.
+  set_fact:
+    r_postgresql_postgresql_unix_socket_directories_mode: >-
+      {{ r_postgresql_postgresql_unix_socket_directories_mode | default('02775') }}
+  when: r_postgresql_postgresql_unix_socket_directories_mode is not defined

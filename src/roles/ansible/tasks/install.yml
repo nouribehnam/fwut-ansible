@@ -1,0 +1,57 @@
+---
+- name: Required Packages
+  become: yes
+  tags: r_ansible_packages
+  block:
+    - name: Ensure ansible package
+      package:
+        name: "{{ os.packages.ansible|default(['git']) }}"
+        state: present
+    - name: Ensure git package
+      package:
+        name: "{{ os.packages.git|default(['git-core']) }}"
+        state: present
+
+- name: Ensure Ansbile path
+  become: yes
+  file:
+    path: "{{ AnisbleNode.path }}"
+    state: directory
+    owner: ansible
+    group: ansible
+    mode: 02775
+
+- name: Ensure Ansible repo
+  git:
+    repo: "{{ AnisbleNode.repo.url }}"
+    dest: "{{ AnisbleNode.path }}"
+    version: "{{ AnisbleNode.version|default(omit) }}"
+    force: yes
+    accept_hostkey: yes
+  tags: r_ansible_update_repo
+
+- name: Create run-playbook link
+  become: yes
+  file:
+    src: "{{ AnisbleNode.path }}/scripts/run-playbook"
+    dest: "/usr/bin/run-playbook"
+    state: link
+
+- name: Ensure run-playbook permissions
+  file:
+    path: "{{ AnisbleNode.path }}/scripts/run-playbook"
+    mode: 0755
+
+- name: Link inventory bash-completion
+  become: yes
+  file:
+    src: "{{ AnisbleNode.path }}/scripts/ansible_inventory.bash"
+    dest: "/etc/bash_completion.d/ansible_inventory"
+    state: link
+
+- name: Copy ansible aliases
+  become: yes
+  copy:
+    src: ansible_alias.sh
+    dest: /etc/profile.d/ansible.sh
+    

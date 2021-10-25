@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+me="$(realpath $0)"
+me_name=$(basename $me)
+me_dir=$(dirname $me)
+
+environment=$1
+inventory=$2
+
+if [ -z "$inventory" ] || [ -z "$environment" ]; then
+    echo "Nothing to activate! ($me_dir)"
+    return
+fi
+
+echo "Activating $environment:$inventory ..."
+export ANSIBLE_L_BASE=$(realpath $me_dir)
+export ANSIBLE_L_ENV=$environment
+export ANSIBLE_L_INV=$inventory
+export ANSIBLE_L_ROOT_PATH=$(realpath "$ANSIBLE_L_BASE")
+export ANSIBLE_L_SRC_PATH="$ANSIBLE_L_ROOT_PATH/src"
+export ANSIBLE_L_ENV_PATH="$ANSIBLE_L_ROOT_PATH/env/$ANSIBLE_L_ENV"
+export ANSIBLE_L_INV_PATH="$ANSIBLE_L_ENV_PATH/$ANSIBLE_L_INV"
+export ANSIBLE_FILTER_PLUGINS=$ANSIBLE_L_SRC_PATH/plugins/filter
+export ANSIBLE_LIBRARY=$ANSIBLE_L_SRC_PATH/modules
+export ANSIBLE_ROLES_PATH=$ANSIBLE_L_SRC_PATH/roles
+export ANSIBLE_PLAYS_PATH=$ANSIBLE_L_SRC_PATH/playbooks
+export ANSIBLE_L_INVENTORY="--inventory \"$ANSIBLE_L_INV_PATH/inventory\""
+export ANSIBLE_L_SSH_CONF=
+export ANSIBLE_L_SSH_FILE="$ANSIBLE_L_INV_PATH/files/ssh.conf"
+if [ -r "$ANSIBLE_L_SSH_FILE" ]; then
+    export ANSIBLE_L_SSH_CONF="--ssh-common-args \"-F '$ANSIBLE_L_SSH_FILE'\""
+fi
+
+source "$ANSIBLE_L_INV_PATH/.inventory"
+
+if ! [ -z "$_ANSIBLE_PS1" ]; then
+    PS1=$(echo $PS1 | sed -e "s/$_ANSIBLE_PS1 //")
+fi
+export _ANSIBLE_PS1="($environment:$inventory)"
+PS1="$_ANSIBLE_PS1 $PS1"
+
+export PS1
+# This should detect bash and zsh, which have a hash command that must
+# be called to get it to forget past commands.  Without forgetting
+# past commands the $PATH changes we made may not be respected
+# if [ -n "${BASH:-}" -o -n "${ZSH_VERSION:-}" ] ; then
+#     hash -r
+# fi
+
+export -p | grep ANSIBLE
+
+shift
+shift
+for var in "$@"
+do
+    export $var
+    export -p | grep "$var"
+done
+
+if [ -f 'localenv' ]; then
+    source localenv
+fi

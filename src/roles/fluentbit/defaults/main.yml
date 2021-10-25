@@ -1,0 +1,26 @@
+---
+r_fluentbit_repos:
+  centos:
+    '7':
+      url: http://packages.fluentbit.io/centos/7/$basearch/
+      gpg: http://packages.fluentbit.io/fluentbit.key
+  debian:
+    '10':
+      url: https://packages.fluentbit.io/debian/buster
+      gpg: https://packages.fluentbit.io/fluentbit.key
+
+
+r_fluentbit_additional_conf_files: []
+r_fluentbit_service_flush_seconds: 5
+r_fluentbit_service_daemon: false
+r_fluentbit_service_custom_parsers_file: []
+r_fluentbit_service_log_level: info
+r_fluentbit_service_enable_metrics: false
+r_fluentbit_service_metrics_listen_ip: 0.0.0.0
+r_fluentbit_service_metrics_listen_port: 2020
+
+# Default inputs
+r_fluentbit_inputs: []
+
+# Default outputs
+r_fluentbit_outputs: []

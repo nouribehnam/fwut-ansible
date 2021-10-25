@@ -1,0 +1,31 @@
+[Interface]
+{% set woptions = wireguard_endpoint.value.interface|mandatory %}
+PrivateKey = {{ secrets.wireguard_keys[wireguard_endpoint.key].private|default("!") }}
+{% include 'options.j2' %}
+
+{% set woptions = None %}
+{% if wireguard_endpoint.value.peer is defined %}
+[Peer]
+{% set woptions = wireguard_endpoint.value.peer %}
+{% include 'options.j2' %}
+{% endif -%}
+
+{% if wireguard_endpoint.value.peers is defined %}
+{% for peer_name, peer in wireguard_endpoint.value.peers.items() %}
+# {{ peer_name}}
+[Peer]
+{% set woptions = peer %}
+{% include 'options.j2' %}
+{% endfor %}
+{% endif -%}
+
+{% if wireguard_endpoint.value.users is defined %}
+{% for user in wireguard_endpoint.value.users.names %}
+# {{ wg_users[wireguard_endpoint.key][user.name].comment|default(user.name) }}
+[Peer]
+PublicKey = {{ wg_users[wireguard_endpoint.key][user.name].wg_public|mandatory }}
+AllowedIPs = {{ wireguard_endpoint.value.users.pool|next_nth_usable(user.id) }}/32
+{% set woptions = wireguard_endpoint.value.users.woptions %}
+{% include 'options.j2' %}
+{% endfor %}
+{% endif -%}

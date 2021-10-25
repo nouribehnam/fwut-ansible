@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo $reason
+script=
+if [ "$reason" == "connect" ]; then
+        script=/etc/openconnect/{{ peer_name }}/up
+elif [ "$reason" == "disconnect" ]; then
+        script=/etc/openconnect/{{ peer_name }}/down
+else
+        exit 0
+fi
+$script $table $ipset
+exit $?

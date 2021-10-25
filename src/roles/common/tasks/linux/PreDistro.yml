@@ -1,0 +1,63 @@
+---
+- name: Ansible Configuration
+  import_tasks: ansible.yml
+  tags:
+    - r_common_ansible
+- name: Purge defaults
+  include_tasks: 
+    file: purges/{{ purge_name }}.yml
+    apply:
+      tags: r_common_purge_defaults
+  loop: "{{ purge|default([]) }}"
+  loop_control:
+    loop_var: purge_name
+  tags: r_common_purge_defaults
+- name: Host templating
+  become: yes
+  tags:
+    - r_common_templating
+  block:
+    - name: Ensure config files
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode|default(0644) }}"
+        owner: "{{ item.owner|default('root') }}"
+        group: "{{ item.group|default('root') }}"
+      loop: "{{ role_common_config_files|default([]) }}"
+      loop_control:
+        label: "{{ item.dest }}"
+      tags: r_common_config_files
+    - name: Ensure hostname
+      hostname:
+        name: "{{ hostname }}.{{ hostdomain }}"
+      tags: r_common_hostname
+    - name: Ensure hosts file
+      template:
+        src: configs/hosts.j2
+        dest: /etc/hosts
+      when: ho_update_hosts|default(True)
+      tags: r_common_hosts
+    - name: Ensure Time zone {{ timezone }}
+      timezone:
+        name: "{{ timezone }}"
+      tags: r_common_timezone
+- name: Ensure admin groups exists
+  become: yes
+  group:
+    name: "{{ item }}"
+    state: present
+  tags:
+    - r_common_admin_grps
+  loop: "{{ admin_groups }}"
+- name: Config network persist rules
+  become: yes
+  template:
+    src: "configs/udev.persistnet.j2"
+    dest: "/etc/udev/rules.d/70-persistent-net.rules"
+  when: 
+    - networks is defined
+  notify:
+    - Reconfig Network Interfaces
+  tags:
+    - r_common_networking

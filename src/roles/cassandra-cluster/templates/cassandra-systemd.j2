@@ -1,0 +1,14 @@
+[Unit]
+Description=Cassandra Database Service
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+User=cassandra
+Group=cassandra
+LimitNOFILE=128000
+Restart=on-failure
+ExecStart=/opt/cassandra/bin/cassandra -f
+
+[Install]
+WantedBy=multi-user.target

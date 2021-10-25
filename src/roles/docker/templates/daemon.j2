@@ -1,0 +1,1 @@
+{{ docker_daemon_conf| combine(docker_daemon_conf_extra|default({})) | to_nice_json(indent=2) }}

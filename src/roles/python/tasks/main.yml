@@ -1,0 +1,9 @@
+---
+- name: OS prerequisite for "{{ facts.os_info }}"
+  include_tasks: 
+    file: "{{ facts.distro_lower }}.yml"
+    apply:
+      tags: r_python
+  tags: always
+- import_tasks: install.yml
+  tags: r_python

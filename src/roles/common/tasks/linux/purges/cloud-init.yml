@@ -1,0 +1,48 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Disable cloud-init
+      file:
+        path: /etc/cloud/cloud-init.disabled
+        state: touch
+      ignore_errors: yes
+
+    - name: Stop and Disable cloud-init service
+      systemd:
+        name: "{{ os.services.cloudinit| default('cloud-init') }}"
+        enabled: no
+        state: stopped
+      ignore_errors: yes
+
+    - name: Remove cloud-init package
+      package:
+        name: "{{ os.packages.cloudinit|default('cloud-init') }}"
+        state: absent
+    
+    - name: Purge cloud-init folders
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/cloud
+        - /var/lib/cloud
+        - /var/tmp/cloud-init
+        - /run/cloud-init
+        - /usr/lib/cloud-init
+
+    - name: Find cloud-init applied configs
+      find:
+        paths: /
+        patterns: "*cloud-init*"
+        recurse: yes
+        file_type: file
+      register: cloud_init_configs
+
+    - name: Purge cloud-init applied configs
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ cloud_init_configs.files }}"
+      loop_control:
+        label: "{{ item.path }}"

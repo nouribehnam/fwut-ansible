@@ -1,0 +1,13 @@
+---
+- name: restart zabbix-agent
+  systemd:
+    name: "{{ r_zabbix_agent_service }}"
+    state: restarted
+  become: true
+
+- name: clean yum-cache
+  shell:
+    cmd: yum clean all
+  become: true
+  args:
+    warn: False

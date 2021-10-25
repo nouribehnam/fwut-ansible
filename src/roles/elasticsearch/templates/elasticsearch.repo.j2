@@ -1,0 +1,8 @@
+[elasticsearch-{{ r_elasticsearch_elastic_version }}]
+name=Elasticsearch repository for {{ r_elasticsearch_elastic_version }} packages
+baseurl={{ r_elasticsearch_elastic_repo }}/packages/{{ r_elasticsearch_elastic_version }}/yum
+gpgcheck=1
+gpgkey={{ r_elasticsearch_elastic_repo }}/GPG-KEY-elasticsearch
+enabled=1
+autorefresh=1
+type=rpm-md

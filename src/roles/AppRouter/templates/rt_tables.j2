@@ -1,0 +1,13 @@
+#
+# reserved values
+#
+{% for tname, tid in AppRouter.reserved_tables.items() %}
+{{ tid }}     {{ tname }}
+{% endfor %}
+
+#
+# User defined
+#
+{% for tname, tid in router.tables.items() %}
+{{ tid }}     {{ tname }}
+{% endfor %}

@@ -1,0 +1,4 @@
+---
+- name: No Task
+  debug:
+    msg: Nothing to do for debian!

@@ -1,0 +1,45 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Add Nginx repo
+      when:
+        - r_nginx_add_repo
+        - not (r_nginx_repos[facts.distro_lower][facts.distro_major]['disabled']|default(False))
+      block:
+        - name: Add Nginx GPG key
+          apt_key: 
+            url: "{{ r_nginx_repos[facts.distro_lower][facts.distro_major]['gpg'] }}"
+            state: present
+          when: "'gpg' in r_nginx_repos[facts.distro_lower][facts.distro_major]"
+          environment:
+            HTTP_PROXY: "{{ ((proxy.http is defined) and (not ho_has_internet) and (r_nginx_repos[facts.distro_lower][facts.distro_major]['gpg_needs_internet']|default(True)|bool)) | ternary(proxy.http, None) }}"
+            HTTPS_PROXY: "{{ ((proxy.https is defined) and (not ho_has_internet) and (r_nginx_repos[facts.distro_lower][facts.distro_major]['gpg_needs_internet']|default(True)|bool)) | ternary(proxy.https, None) }}" 
+        - name: Add Debian repository
+          apt_repository:
+            repo: deb {{ r_nginx_repos[facts.distro_lower][facts.distro_major]['url'] }}
+            update_cache: yes
+            filename: nginx-stable
+            state: present
+        - name: Ensure package pinning
+          copy:
+            dest: /etc/apt/preferences.d/99nginx
+            content: "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n"
+    - name: Remove Nginx repo
+      when: (not r_nginx_add_repo) or (r_nginx_repos[facts.distro_lower][facts.distro_major]['disabled']|default(False))
+      file:
+        path: /etc/apt/sources.list.d/nginx-stable.list
+        state: absent
+
+    - name: Remove
+      tags:
+        - never
+        - ROLE_NGINX_REMOVE
+      block:
+        - name: Remove nginx repo
+          file:
+            path: item
+            state: absent
+          loop:
+            - /etc/apt/sources.list.d/nginx-stable.list
+            - /etc/apt/preferences.d/99nginx

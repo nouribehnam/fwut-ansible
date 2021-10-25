@@ -1,0 +1,9 @@
+{% for ik, iv in woptions.items() %}
+{% if iv|type_debug == "list" %}
+{% for entry in iv %}
+{{ ik }} = {{ entry }}
+{% endfor %}
+{% else %}
+{{ ik }} = {{ iv }}
+{% endif %}
+{% endfor %}

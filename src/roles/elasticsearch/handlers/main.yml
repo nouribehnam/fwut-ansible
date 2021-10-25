@@ -1,0 +1,17 @@
+---
+- name: Reload systemd
+  become: yes
+  command: systemctl daemon-reload
+
+- name: Restart elasticsearch
+  become: yes
+  service: 
+    name: elasticsearch-{{ node_name }}
+    state: restarted
+  loop: "{{ elasticsearch.nodes|default({})|dict2items }}"
+  loop_control:
+    loop_var: node
+    label: "{{ node.key }}"
+  vars:
+    options: "{{ node.value }}"
+    node_name: "{{ node.key }}"

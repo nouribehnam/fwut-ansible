@@ -1,0 +1,29 @@
+---
+- name: Become
+  become: yes
+  block:
+    # - name: Installation
+    #   tags: r_openconnect_install
+    #   block:
+    #     - name: Ensure openconnect repo
+    #       yum_repository:
+    #         name: openconnect
+    #         file: openconnect
+    #         description: Openconnect repo
+    #         baseurl: "{{ os.repositories.openconnect.base }}"
+    #         gpgkey: "{{ os.repositories.openconnect.gpg }}"
+    #         gpgcheck: yes
+    #         enabled: yes
+    #         # enabled_metadata: yes
+    #         # proxy: "{{ proxy.http|default(omit) }}"
+    #       notify: yum-clean-metadata
+    - name: Remove
+      tags:
+        - never
+        - ROLE_NGINX_REMOVE
+      block:
+        - name: Remove openconnect repo
+          file:
+            path: /etc/yum.repos.d/openconnect.repo
+            state: absent
+          notify: yum-clean-metadata

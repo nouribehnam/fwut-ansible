@@ -1,0 +1,10 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Remove PHP packages
+      include_tasks: remove_packages.yml
+      loop: "{{ php_versions }}"
+      loop_control:
+        loop_var: php_version
+        label: "{{ php_version.version }}"

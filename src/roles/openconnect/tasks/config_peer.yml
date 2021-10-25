@@ -1,0 +1,51 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Ensure peer folder
+      file:
+        path: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}"
+        state: directory
+    - name: Ensure peer config file
+      template:
+        src: config.j2
+        dest: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}/config"
+      notify: Restart Openconnect
+    - name: Ensure peer openconnect config file
+      template:
+        src: oconfig.j2
+        dest: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}/oconfig"
+      when: options.extra is defined
+      notify: Restart Openconnect
+    - name: Ensure client cert
+      when: options.certificate is defined
+      block:
+        - name: Ensure certificate file
+          copy:
+            content: "{{ options.certificate }}"
+            dest: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}/cert"
+          notify: Restart Openconnect
+        - name: Ensure key file
+          copy:
+            content: "{{ secrets.openconnect[peer_name].sslkey }}"
+            dest: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}/key"
+            mode: 600
+          notify: Restart Openconnect
+    - name: Ensure CA file
+      copy:
+        content: "{{ options.cacert }}"
+        dest: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}/ca"
+      when: options.cacert is defined
+      notify: Restart Openconnect
+    - name: Ensure scripts
+      template:
+        src: "{{ item }}"
+        dest: "{{ r_openconnect_script_files_config_path }}/{{ peer_name }}/{{ item|splitext|first }}"
+        mode: 0740
+      loop: "{{ r_openconnect_script_files }}"
+    - name: Ensure service
+      systemd:
+        name: openconnect@{{ peer_name }}
+        state: started
+        enabled: yes
+      

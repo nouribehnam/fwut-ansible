@@ -1,0 +1,4 @@
+---
+- name: Nothing to do for now
+  debug:
+      msg: "Nothing to do here for now"

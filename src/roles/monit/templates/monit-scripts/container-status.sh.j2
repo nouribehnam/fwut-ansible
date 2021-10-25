@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#{%- raw %}
+docker inspect -f '{{.State.Running}}' $(docker ps --format '{{.Names}}') | grep true && docker inspect -f '{{.State.Restarting}}' $(docker ps --format '{{.Names}}') | grep false
+#{%- endraw %}
+if [[ $? == 0 ]]; then
+    echo "$1 container is running"
+    exit 0
+else
+    echo "$1 container is not running" >> /dev/stderr
+    exit 1
+fi

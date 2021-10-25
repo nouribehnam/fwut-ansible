@@ -1,0 +1,296 @@
+---
+r_bacula_base_configs:
+  bacula-dir:
+    options:
+      - name: Director
+        options:
+          Name: "{{ r_bacula_server_name }}-dir"
+          DIRport: 9101                
+          QueryFile: "/etc/bacula/scripts/query.sql"
+          WorkingDirectory: "/var/lib/bacula"
+          PidDirectory: "/run/bacula"
+          Maximum Concurrent Jobs: 20
+          Password: "{{ r_bacula_dir_password }}"
+          Messages: Daemon
+          DirAddress: "{{ r_bacula_dir_address }}"
+      - name: Schedule
+        options:
+          Name: WeeklyCycle
+          Run:
+            - Full 1st sun at 23:05
+            - Differential 2nd-5th sun at 23:05
+            - Incremental mon-sat at 23:05
+      - name: Schedule
+        options:
+          Name: WeeklyCycleAfterBackup
+          Run: Full sun-sat at 23:10
+      - name: FileSet
+        options:
+          Name: Catalog
+          Include:
+            Options:
+              signature: MD5
+            File: /var/lib/bacula/bacula.sql
+      - name: FileSet
+        options:
+          Name: Full Set
+          Include:
+            Options:
+              signature: MD5
+            File: /usr/sbin
+          Exclude:
+            File:
+              - "{{r_bacula_restore_dir}}"
+              - "{{r_bacula_archive_dir}}"
+              - /var/lib/bacula
+              - /proc
+              - /tmp
+              - /sys
+              - /.journal
+              - /.fsck
+      - name: JobDefs
+        options:
+          Name: DefaultJob
+          Type: Backup
+          Level: Incremental
+          Client: "{{ r_bacula_server_name }}-fd"
+          FileSet: "Full Set"
+          Schedule: "WeeklyCycle"
+          Storage: File1
+          Messages: Standard
+          Pool: File
+          SpoolAttributes: yes
+          Priority: 10
+          Write Bootstrap: "/var/lib/bacula/%c.bsr"  
+          Runscript:
+              RunsWhen: "After"
+              RunsOnFailure: "yes"
+              RunsOnClient: "no"
+              Command: "/etc/bacula/scripts/send_telegram %i"
+      - name: JobDefs
+        options:
+          Name: Telegram  
+          Runscript:
+              RunsWhen: "After"
+              RunsOnFailure: "yes"
+              RunsOnClient: "no"
+              Command: "/etc/bacula/scripts/send_telegram %i"              
+      - name: Job
+        options:
+          Name: "BackupClient1"
+          JobDefs: "DefaultJob"          
+      - name: Job
+        options:
+          Name: "BackupCatalog"
+          JobDefs: "DefaultJob"
+          Level: Full
+          FileSet: "Catalog"
+          Schedule: "WeeklyCycleAfterBackup"
+          RunBeforeJob: "/etc/bacula/scripts/make_catalog_backup.pl MyCatalog"
+          RunAfterJob : "/etc/bacula/scripts/delete_catalog_backup"
+          Write Bootstrap: "/var/lib/bacula/%n.bsr"
+          Priority: 11                   
+      - name: Job
+        options:
+          Name: "RestoreFiles"
+          Type: Restore
+          Client: "{{ r_bacula_server_name }}-fd"
+          Storage: File1
+          FileSet: "Full Set"
+          Pool: File
+          Messages: Standard
+          Where: "{{ r_bacula_restore_dir }}"
+      - name: Client
+        options:
+          Name: "{{ r_bacula_server_name }}-fd"
+          Address: localhost
+          FDPort: 9102
+          Catalog: MyCatalog
+          Password: "{{ r_bacula_fd_password }}"          
+          File Retention: 60 days            
+          Job Retention: 6 months            
+          AutoPrune: yes                     
+      - name: Autochanger
+        options:
+          Name: File1
+          Address: localhost               
+          SDPort: 9103
+          Password: "{{ r_bacula_sd_password }}"
+          Device: FileChgr1
+          Media Type: File1
+          Maximum Concurrent Jobs: 10       
+          Autochanger: File1                 
+      - name: Autochanger
+        options:
+          Name: File2
+          Address: localhost               
+          SDPort: 9103
+          Password: "{{ r_bacula_sd_password }}"
+          Device: FileChgr2
+          Media Type: File2
+          Autochanger: File2                 
+          Maximum Concurrent Jobs: 10       
+      - name: Catalog
+        options:
+          Name: MyCatalog
+          DbName: "{{ r_bacula_dbname }}"
+          Address: "localhost"
+          User: "{{ r_bacula_dbuser}}"
+          Password: "{{ r_bacula_dbpass }}"
+      - name: Messages
+        options:
+          Name: Standard
+          mailcommand: '"/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) \<%r\>\" -s \"Bacula: %t %e of %c %l\" %r"'
+          operatorcommand: '"/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) \<%r\>\" -s \"Bacula: Intervention needed for %j\" %r"'
+          mail: 'root= all, !skipped'
+          operator: 'root= mount'
+          console: all, !skipped, !saved
+          append: '/var/log/bacula/bacula.log= all, !skipped'
+          catalog: all
+      - name: Messages
+        options:
+          Name: Daemon
+          mailcommand: '"/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) \<%r\>\" -s \"Bacula daemon message\" %r"'
+          mail: 'root= all, !skipped'
+          console: all, !skipped, !saved
+          append: '/var/log/bacula/bacula.log= all, !skipped'
+      - name: Pool
+        options:
+          Name: Default
+          Pool Type: Backup
+          Recycle: yes                       
+          AutoPrune: yes                    
+          Volume Retention: 365 days         
+          Maximum Volume Bytes: 50G          
+          Maximum Volumes: 100               
+      - name: Pool
+        options:
+          Name: File
+          Pool Type: Backup
+          Recycle: yes                       
+          AutoPrune: yes                     
+          Volume Retention: 365 days         
+          Maximum Volume Bytes: 50G          
+          Maximum Volumes: 100               
+          Label Format: "Vol-"               
+      - name: Pool
+        options:
+          Name: Scratch
+          Pool Type: Backup
+      - name: Console
+        options:
+          Name: "{{ r_bacula_server_name }}-mon"
+          Password: "{{ r_bacula_dir_monitor_password }}"
+          CommandACL: status, .status  
+  bacula-sd:
+    options:
+      - name: Storage
+        options:   
+          Name: "{{ r_bacula_server_name }}-sd"
+          SDPort: 9103                  
+          WorkingDirectory: "/var/lib/bacula"
+          Pid Directory: "/run/bacula"
+          Plugin Directory: "/usr/lib/bacula"
+          Maximum Concurrent Jobs: 20
+          SDAddress: localhost
+      - name: Director
+        options:   
+          Name: "{{ r_bacula_server_name }}-dir"
+          Password: "{{ r_bacula_sd_password }}"
+      - name: Director
+        options:
+          Name: "{{ r_bacula_server_name }}-mon"
+          Password: "{{ r_bacula_sd_monitor_password }}"
+          Monitor: yes
+      - name: Autochanger
+        options:
+          Name: FileChgr1
+          Device: FileChgr1-Dev1, FileChgr1-Dev2
+          Changer Command: '""'
+          Changer Device: /dev/null
+      - name: Device
+        options:
+          Name: FileChgr1-Dev1
+          Media Type: File1
+          Archive Device: "{{ r_bacula_archive_dir }}"
+          LabelMedia: yes;                   
+          Random Access: Yes;
+          AutomaticMount: yes;               
+          RemovableMedia: no;
+          AlwaysOpen: no;
+          Maximum Concurrent Jobs: 5
+      - name: Device
+        options:
+          Name: FileChgr1-Dev2
+          Media Type: File1
+          Archive Device: "{{ r_bacula_archive_dir }}"
+          LabelMedia: yes;                   
+          Random Access: Yes;
+          AutomaticMount: yes;               
+          RemovableMedia: no;
+          AlwaysOpen: no;
+          Maximum Concurrent Jobs: 5
+      - name: Autochanger
+        options:
+          Name: FileChgr2
+          Device: FileChgr2-Dev1, FileChgr2-Dev2
+          Changer Command: '""'
+          Changer Device: /dev/null
+      - name: Device
+        options:
+          Name: FileChgr2-Dev1
+          Media Type: File2
+          Archive Device: "{{ r_bacula_archive_dir }}"
+          LabelMedia: yes;                   
+          Random Access: Yes;
+          AutomaticMount: yes;               
+          RemovableMedia: no;
+          AlwaysOpen: no;
+          Maximum Concurrent Jobs: 5
+      - name: Device
+        options:
+          Name: FileChgr2-Dev2
+          Media Type: File2
+          Archive Device: "{{ r_bacula_archive_dir }}"
+          LabelMedia: yes;                   
+          Random Access: Yes;
+          AutomaticMount: yes;               
+          RemovableMedia: no;
+          AlwaysOpen: no;
+          Maximum Concurrent Jobs: 5
+      - name: Messages
+        options:
+          Name: Standard
+          director: '{{ r_bacula_server_name }}-dir = all'
+  bacula-fd:
+    options:
+      - name: Director
+        options:
+          Name: "{{ r_bacula_server_name }}-dir"
+          Password: "{{ r_bacula_fd_password }}"           
+      - name: Director
+        options:            
+          Name: "{{ r_bacula_server_name }}-mon"
+          Password: "{{ r_bacula_fd_monitor_password }}"
+          Monitor: yes 
+      - name: FileDaemon
+        options:    
+          Name: "{{ r_bacula_server_name }}-fd"
+          FDport: 9102                  
+          WorkingDirectory: /var/lib/bacula
+          Pid Directory: /run/bacula
+          Maximum Concurrent Jobs: 20
+          Plugin Directory: /usr/lib/bacula
+          FDAddress: 127.0.0.1    
+      - name: Messages
+        options:          
+          Name: Standard
+          director: '{{ r_bacula_server_name }}-dir = all, !skipped, !restored'
+  bconsole:
+    options:
+      - name: Director
+        options: 
+          Name: "{{ r_bacula_server_name }}-dir"
+          DIRport: 9101
+          address: "{{ r_bacula_dir_address }}"
+          Password: "{{ r_bacula_dir_password }}"                            

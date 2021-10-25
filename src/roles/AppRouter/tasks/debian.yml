@@ -1,0 +1,4 @@
+---
+- name: Nothing to do for {{ facts.os_info }}
+  debug:
+      msg: "Nothing to do here for {{ facts.os_info }}"

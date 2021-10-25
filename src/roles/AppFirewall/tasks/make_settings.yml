@@ -1,0 +1,18 @@
+---
+- name: Default config
+  import_tasks: default_settings.yml
+  tags:
+    - r_AppFirewall_default_config
+
+- name: Host config
+  tags: r_AppFirewall_host_config
+  block:    
+    - name: Host address list
+      import_tasks: host_lists.yml
+      tags:
+        - r_AppFirewall_host_lists
+    - meta: flush_handlers
+    - name: Host rules
+      import_tasks: host_rules.yml
+      tags:
+        - r_AppFirewall_host_rules

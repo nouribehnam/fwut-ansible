@@ -1,0 +1,21 @@
+---
+- import_tasks: install.yml
+  tags: r_mssql_dockerized_install
+- include_tasks: apply.yml
+  loop: "{{ mssql_instances|dict2items }}"
+  loop_control:
+    loop_var: mssql_instance
+    label: "{{ mssql_instance.key }}"
+  tags: r_mssql_dockerized_apply
+- import_tasks: remove.yml
+  tags:
+    - never
+    - ROLE_MSSQL_DOCKERIZED_REMOVE
+# - name: Tear down existing services
+#   docker_compose:
+#     project_src: /opt/docker/test
+#     state: absent
+# - name: Create and start services
+#   docker_compose:
+#     project_src: /opt/docker/test
+#   register: output

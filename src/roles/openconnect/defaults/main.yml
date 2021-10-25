@@ -1,0 +1,2 @@
+r_openconnect_script_files_config_path: /etc/openconnect
+r_openconnect_script_files_route_table: main

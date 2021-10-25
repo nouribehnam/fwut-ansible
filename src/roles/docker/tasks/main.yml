@@ -1,0 +1,11 @@
+---
+- name: OS prerequisite for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+  tags: always
+- import_tasks: install.yml
+  tags: 
+    - r_docker_install
+- import_tasks: remove.yml
+  tags:
+    - never
+    - ROLE_DOCKER_REMOVE

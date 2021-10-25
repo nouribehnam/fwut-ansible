@@ -1,0 +1,4 @@
+{% import 'bacula-config-section.j2' as sections %}
+{% for section_info in config_options %}
+{{ sections.section(section_info) }}
+{% endfor %}

@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  mysql:
+    container_name: {{ r_mysql_docker_container_name }}
+    image: {{ r_mysql_docker_image }}:{{ r_mysql_docker_image_version }}
+    ports:
+      - {{ r_mysql_docker_http_port }}:3306
+    hostname: {{ r_mysql_docker_hostname  }}
+    restart: {{ r_mysql_docker_restart_policy }}    
+    volumes:
+      - "{{ g_src_path }}/{{ r_mysql_docker_project_path }}:/var/lib/mysql"
+    env_file:
+      - .env_mysql  
+    
+
+  nextcloud:
+    image:  {{ r_nextcloud_docker_image }}:{{ r_nextcloud_docker_image_version }}
+    container_name:   {{ r_nextcloud_docker_container_name }}
+    ports:
+      - {{ r_nextcloud_docker_http_port }}:80
+    restart: always
+    volumes:
+      - "{{ g_src_path }}/{{ r_nextcloud_docker_project_path }}:/var/www/html"
+      - "{{ g_src_path }}/{{ r_mysql_docker_project_path }}:/var/lib/mysql"
+    links:
+      - mysql:mysql
+    env_file:
+      - .env_nextcloud
+                                                                                        

@@ -1,0 +1,28 @@
+---
+
+- name: Install bacula-client package on RedHat
+  yum:
+    name: bacula-client
+    state: present
+  when: ansible_pkg_mgr == "yum"
+
+- name: Install bacula-client package on Fedora
+  dnf:
+    name: bacula-client
+    state: present
+  when: ansible_pkg_mgr == "dnf"
+
+- name: Import bacula template
+  template:
+    src: bacula-fd.conf.j2
+    dest: /etc/bacula/bacula-fd.conf
+    owner: root
+    group: bacula
+    mode: 0660
+  notify: "(Handler: All Linux/Unix OSs) Restart bacula-fd"
+
+- name: Manage bacula-fd service
+  service:
+    name: bacula-fd
+    state: started
+    enabled: yes

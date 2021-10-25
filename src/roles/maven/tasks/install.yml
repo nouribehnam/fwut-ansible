@@ -1,0 +1,21 @@
+---
+- name: Ensure maven folder
+  file:
+    path: "{{ r_maven_install_base }}/{{ r_maven_version }}"
+    state: directory
+    mode: 0755
+- name: Get maven package
+  get_url:
+    url: "{{ r_maven_url }}"
+    dest: "{{ r_maven_install_base }}/{{ r_maven_info.file_name }}"
+    checksum: "{{ r_maven_info.checksum }}"
+    use_proxy: "{{ (r_maven_info.need_internet and not ho_has_internet)|bool }}"
+  environment:
+    http_proxy: "{{ proxy.http is defined | ternary(proxy.http, None) }}"
+    https_proxy: "{{ proxy.https is defined | ternary(proxy.https, None) }}"
+- name: Extract package archive
+  unarchive:
+    src: "{{ r_maven_install_base }}/{{ r_maven_info.file_name }}"
+    dest: "{{ r_maven_install_base }}/{{ r_maven_version }}"
+    extra_opts: "{{ r_maven_info.archive_extra|default(omit) }}"
+    remote_src: yes

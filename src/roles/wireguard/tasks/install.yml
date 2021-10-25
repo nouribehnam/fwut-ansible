@@ -1,0 +1,41 @@
+---
+- name: Include tasks for "{{ facts.os_info }}"
+  include_tasks: "{{ facts.distro_lower }}.yml"
+- name: Installation tasks
+  become: yes
+  tags:
+    - r_wireguard_install
+  block:
+    - name: Ensure Wireguard packages
+      package:
+        name: "{{ r_wireguard_packages[facts.distro_lower] }}"
+        state: present
+    - name: Ensure config path
+      file:
+        path: "{{ r_wireguard_config_path }}"
+        state: directory
+        mode: 0700
+        owner: root
+        group: root
+- name: Config Tasks
+  become: yes
+  tags: r_wireguard_config
+  block:
+    - name: Add Endpoint
+      include_tasks:
+        file: add_endpoint.yml
+      loop: "{{ wireguard.endpoints|default({})|dict2items }}"
+      loop_control:
+        label: "{{ wireguard_endpoint.key }}"
+        loop_var: wireguard_endpoint
+      when: not wireguard_endpoint.value.disabled|default(False)
+      tags: r_wireguard_config_add
+    - name: Remove EndPoint
+      include_tasks:
+        file: remove_endpoint.yml
+      loop: "{{ wireguard.endpoints|default({})|dict2items }}"
+      loop_control:
+        label: "{{ wireguard_endpoint.key }}"
+        loop_var: wireguard_endpoint
+      when: wireguard_endpoint.value.disabled|default(False)
+      tags: r_wireguard_config_remove

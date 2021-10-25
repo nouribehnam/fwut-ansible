@@ -1,0 +1,45 @@
+---
+r_AppFirewall:
+
+  data_folder: /opt/firewall
+  bin_folder: /opt/firewall/bin
+  src_folder: /opt/firewall/src
+  rules_folder: /opt/firewall/rules
+  default_rules_folder: /opt/firewall/rules/00-default
+  local_rules_folder: /opt/firewall/rules/99-local
+  lists_folder: /opt/firewall/lists
+  default_lists_folder: /opt/firewall/lists/00-default
+  local_lists_folder: /opt/firewall/lists/99-local
+
+  files:
+    - { src: 'firewall/', dest: '/opt/firewall' }
+   
+
+  generic_list_files:
+    - { src: "lists/generic/v4/trusted.j2", dest: "/opt/firewall/lists/00-default/trusted.v4.ipset" }
+    - { src: "lists/generic/v4/blocked.j2", dest: "/opt/firewall/lists/00-default/blocked.v4.ipset" }
+    - { src: "lists/generic/v6/trusted.j2", dest: "/opt/firewall/lists/00-default/trusted.v6.ipset" }
+    - { src: "lists/generic/v6/blocked.j2", dest: "/opt/firewall/lists/00-default/blocked.v6.ipset" }
+  generic_rule_files:
+    - { src: "rules/generic/v4/main.j2", dest: "/opt/firewall/rules/00-default/main.v4.rules" }
+    - { src: "rules/generic/v6/main.j2", dest: "/opt/firewall/rules/00-default/main.v6.rules" }
+
+  filter_main_chains:
+    - INPUT
+    - FORWARD
+    - OUTPUT
+  mangle_main_chains:
+    - PREROUTING
+    - INPUT
+    - FORWARD
+    - OUTPUT
+    - POSTROUTING
+  nat_main_chains:
+    - PREROUTING
+    - INPUT
+    - FORWARD
+    - OUTPUT
+    - POSTROUTING
+  raw_main_chains:
+    - PREROUTING
+    - OUTPUT

@@ -1,0 +1,15 @@
+---
+- name: Vmware tools and services
+  become: yes
+  block:
+  - name: Install guest tools
+    package:
+      name: "{{ os.packages.vmware_guest }}"
+      state: present
+    when: os.packages.vmware_guest is defined
+  - name: Ensure tools services
+    systemd:
+      name: "{{ os.services_name.vmware_guest }}"
+      state: started
+      enabled: yes
+    when: os.services_name.vmware_guest is defined

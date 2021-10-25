@@ -1,0 +1,24 @@
+---
+- name: Ensure service directories {{ node_name }}
+  file:
+    path: "{{item}}/elasticsearch/{{ node_name }}"
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+  with_items:
+    - /var/run
+    - /var/log
+    
+- name: Create systemd service elasticsearch-{{ node_name }}
+  template:
+    src: "systemd.service.j2"
+    dest: "/etc/systemd/system/elasticsearch-{{ node_name }}.service"
+    mode: 0664
+  notify: 
+    - Reload systemd
+  
+- name: Start service elasticsearch-{{ node_name }}
+  systemd:
+    name: elasticsearch-{{ node_name }}
+    state: started
+    enabled: yes

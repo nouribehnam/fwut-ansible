@@ -1,0 +1,25 @@
+# gitlab variables
+
+# docker_compose_variables
+r_gitlab_docker_container_name: "gitlab-ce"
+r_gitlab_docker_image: "gitlab/gitlab-ce"
+r_gitlab_docker_image_version: "13.10.0-ce.0"
+r_gitlab_docker_hostname: "gitlab.fwutech.com"
+r_gitlab_docker_external_url: "http://gitlab.fwutech.com"
+
+g_src_path: /usr/local/src
+r_gitlab_docker_project_path: "gitlab"
+
+# network_mode can be host or default
+r_gitlab_docker_network_mode: "default"
+
+# set host_port if network_mode is set to to default
+r_gitlab_docker_ssh_port: 2022
+r_gitlab_docker_http_port: 8080
+r_gitlab_docker_https_port: 4433
+r_gitlab_docker_restart_policy: "always"
+
+# Volumes
+r_gitlab_docker_config_vol: /data/gitlab/etc/gitlab
+r_gitlab_docker_log_vol: /data/gitlab/var/log/gitlab
+r_gitlab_docker_data_vol: /data/gitlab/var/opt/gitlab

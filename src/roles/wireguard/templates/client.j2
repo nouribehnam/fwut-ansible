@@ -1,0 +1,15 @@
+## {{ ras_users[user.name].comment|default(user.name) }}
+[Interface]
+PrivateKey = {{ ras_users[user.name].wg_private|mandatory }}
+Address = {{ wireguard_endpoint.value.users.pool|next_nth_usable(user.id) }}/32
+{% for o in wireguard_endpoint.value.users.c_interface_options|default({})|dict2items %}
+{{ o.key }} = {{ o.value }}
+{% endfor %}
+
+[Peer]
+PublicKey = {{ secrets.wireguard_keys[wireguard_endpoint.key].public|mandatory }}
+Endpoint = {{ wireguard_endpoint.value.dns_name|default(wireguard_endpoint.value.public_addr) }}:{{ wireguard_endpoint.value.interface.ListenPort|mandatory }}
+AllowedIPs= {{ wireguard_endpoint.value.allowed_ips|mandatory }}
+{% for o in wireguard_endpoint.value.users.c_endpoint_options|default({})|dict2items %}
+{{ o.key }} = {{ o.value }}
+{% endfor %}

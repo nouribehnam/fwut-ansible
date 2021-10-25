@@ -1,0 +1,21 @@
+---
+- name: Ensure php package
+  package:
+    name: "{{ os.packages.php[phpinstance.key].php }}"
+    state: present
+    enablerepo: "{{ os.packages.php[phpinstance.key].repo|default(omit) }}"
+- name: Ensure php modules
+  package:
+    name: "{{ os.packages.php[phpinstance.key].modules[item] }}"
+    state: present
+    enablerepo: "{{ os.packages.php[phpinstance.key].repo|default(omit) }}"
+  loop: "{{ phpinstance.value.modules }}"
+  notify: restart php services
+  when: phpinstance.value.modules is defined
+- name: Ensure php services
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop: "{{ phpinstance.value.services }}"
+  when: phpinstance.value.services is defined

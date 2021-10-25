@@ -1,0 +1,15 @@
+---
+- name: become
+  become: yes
+  vars:
+    r_tomcat_info: "{{ r_tomcat[r_tomcat_version] }}"
+    r_tomcat_url: "{{ r_tomcat_info['url_' + facts.system|lower] }}"
+  block:
+    - name: install {{ r_tomcat_info }}
+      import_tasks: install.yml
+      tags: r_tomcat_install
+    - name: remove
+      import_tasks: remove.yml
+      tags:
+        - never
+        - ROLE_TOMCAT_REMOVE

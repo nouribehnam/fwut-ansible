@@ -1,0 +1,103 @@
+---
+- name: Network Configuration
+  become: yes
+  tags:
+    - r_common_networking
+  block:
+    - name: Ensure base interface file
+      template:
+        src: debian/interfaces_main.j2
+        dest: /etc/network/interfaces
+        owner: root
+        group: root
+        mode: 0644
+      vars:
+        iface: lo
+        net:
+          up_mode: auto
+          options:
+            - "{{ debian_lo_v4|combine(ho_debian_lo_v4, recursive=True) }}"
+            - "{{ debian_lo_v6|combine(ho_debian_lo_v6, recursive=True) }}"
+      when:
+        - networks is defined
+        - not networks == {}
+    - name: Config network interface
+      template:
+        src: "debian/interface.j2"
+        dest: "/etc/network/interfaces.d/{{ item.key }}.conf"
+      with_dict: "{{ networks|default({}) }}"
+      loop_control:
+        label: "{{ item.key }}"
+        index_var: iface_id
+      vars:
+        net: "{{ item.value }}"
+        iface: "{{ item.key }}"
+      when: not item.value.disabled|default(False)|bool
+      notify:
+        - Restart Networking
+    - name: Remove disabled networks
+      file:
+        path: "/etc/network/interfaces.d/{{item.key}}.conf"
+        state: absent
+      loop: "{{ networks|default({})|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: item.value.disabled|default(False)|bool
+      notify:
+        - Restart Networking
+
+- name: Configure ntp
+  become: yes
+  tags:
+    - r_common_ntp
+  template:
+    src: "debian/ntp.j2"
+    dest: "/etc/ntp.conf"
+  notify:
+    - Restart Services 'ntp'
+
+- name: Pakcages Configuration
+  become: yes
+  tags:
+    - r_common_packages
+  block:
+    - name: Ensure sources list file
+      copy:
+        content: "# Please add sources in /etc/apt/sources.list.d\n"
+        dest: /etc/apt/sources.list
+    - name: Ensure ubuntu default repositories
+      template:
+        src: debian/sources.j2
+        dest: /etc/apt/sources.list.d/{{ item.key }}.list
+      loop: "{{ os.repositories.default|combine(ho_ubuntu_local_repos, ho_ubuntu_repos, recursive=True)|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: not item.value.disabled|default(False)
+    - name: Ensure disabled ubuntu default repositories
+      file:
+        dest: /etc/apt/sources.list.d/{{ item.key }}.list
+        state: absent
+      loop: "{{ os.repositories.default|combine(ho_ubuntu_local_repos, ho_ubuntu_repos, recursive=True)|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: item.value.disabled|default(False)
+    - name: Update repo cache
+      apt:
+        update_cache: yes
+
+# - name: Services Configuration
+#   become: yes
+#   block:
+#     - name: Ensure sshd selinux custom port
+#       seport:
+#         ports: "{{ sshd_port | mandatory }}"
+#         proto: tcp
+#         setype: ssh_port_t
+#         state: present
+#       notify: Restart ssh
+#     - name: rsyslog configuration
+#       copy:
+#         src: centos/rsyslog.d/
+#         dest: /etc/rsyslog.d
+#   tags:
+#     - services

@@ -1,0 +1,14 @@
+---
+- name: Ensure endpoint {{ wireguard_endpoint.key}} service is stopped
+  systemd:
+    name: "wg-quick@{{ wireguard_endpoint.key }}"
+    state: stopped
+    enabled: no
+- name: Remove endpopint {{ wireguard_endpoint.key }} service
+  systemd:
+    name: "wg-quick@{{ wireguard_endpoint.key }}"
+    masked: yes
+- name: Remove endpopint {{ wireguard_endpoint.key }} config
+  file:
+    path: "{{ r_wireguard_config_path }}/{{ wireguard_endpoint.key }}.conf"
+    state: absent

@@ -1,0 +1,29 @@
+---
+- name : "Become"
+  become: yes
+  block:
+    - name: "Ensure working directory"
+      file:
+        path: "{{ g_src_path }}/{{ r_prometheus_docker_project_path }}"
+        state: directory
+
+    - name: "Create prometheus docker-compose file"
+      template:
+        dest: "{{ g_src_path }}/{{ r_prometheus_docker_project_path }}/docker-compose.yml"
+        src: "docker-compose.j2"
+        owner: ansible
+        group: docker
+        mode: 0755
+    
+    - name: "Create prometheus config file"
+      template:
+        dest: "{{r_prometheus_docker_config_vol}}"
+        src: "prometheus-config.j2"
+        owner: ansible
+        group: docker
+        mode: 0755
+
+    - name: "execute docker-compose to run prometheus docker image"
+      docker_compose:
+        project_src: "{{ g_src_path }}/{{ r_prometheus_docker_project_path }}"
+        state: present

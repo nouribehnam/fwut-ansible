@@ -1,0 +1,24 @@
+---
+timezone: Etc/UTC
+admin_groups:
+  - admin
+  - super_admin
+ho_hosts_add_self: true
+
+# CentOS
+ho_centos_repos: {}
+ho_centos_repo_gpg_keys: {}
+ho_centos_local_repos: {}
+ho_centos_epel_repos: {}
+ho_centos_use_epel: yes
+
+# Ubuntu
+ho_ubuntu_repos: {}
+ho_ubuntu_local_repos: {}
+
+
+# Debian
+ho_debian_repos: {}
+ho_debian_local_repos: {}
+ho_debian_lo_v4: {}
+ho_debian_lo_v6: {}

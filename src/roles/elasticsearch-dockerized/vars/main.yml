@@ -1,0 +1,7 @@
+---
+r_elasticsearch_dock:  
+  directory:
+    - config
+    - data
+    - repo
+    - ssl

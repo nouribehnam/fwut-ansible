@@ -1,0 +1,4 @@
+---
+- name: Pass
+  debug:
+    msg: Nothing to do for type pass

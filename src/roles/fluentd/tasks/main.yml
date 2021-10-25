@@ -1,0 +1,45 @@
+---
+- name: Deploy Fluentd
+  become: yes
+  block:
+  # - name: Include tasks for "{{ facts.os_info }}"
+  #   include_tasks: "{{ facts.distro_lower }}.yml"
+
+  - name: Install td-agent
+    package:
+      name: td-agent
+      state: present
+
+  - name: Configure Fluentd
+    template:
+      src: td-agent.conf.j2
+      dest: /etc/td-agent/td-agent.conf
+      owner: root
+      group: root
+      mode: 0644
+    notify: restart fluentd
+
+  - name: Determine fluent-gem executable location for td-agent < v4
+    set_fact:
+      fluent_gem_executable: /opt/td-agent/embedded/bin/fluent-gem
+    when: r_fluentd_fluentd_version < 4
+
+  - name: Determine fluent-gem executable location for td-agent v4
+    set_fact:
+      fluent_gem_executable: /opt/td-agent/bin/fluent-gem
+    when: r_fluentd_fluentd_version >= 4
+
+  - name: Ensure Fluentd plugins are installed.
+    gem:
+      name: "{{ item.name | default(item) }}"
+      executable: "{{ fluent_gem_executable }}"
+      state: present
+      version: "{{ item.version | default(omit) }}"
+      user_install: false
+    with_items: "{{ fluentd_plugins }}"
+
+  - name: Start Fluentd
+    service:
+      name: td-agent
+      state: started
+      enabled: yes

@@ -1,0 +1,34 @@
+---
+- name: import vars
+  include_vars:
+    dir: vars
+    ignore_files : main.yml
+  tags: always
+- name: Ensure firewall role is not present
+  assert:
+    that: "'firewall' not in roles"
+    fail_msg: "Firewall role and router role can't be assign to one host"
+  tags: always
+- name: Role dependencies
+  block:
+    - name: Firewall APP
+      import_role:
+        name: AppFirewall
+      tags: r_router_AppFirewall
+    - name: Router App
+      import_role:
+        name: AppRouter
+      tags: r_router_AppRouter
+    # - name: Extra APPs
+    #   include_role: 
+    #     name: "{{ rapp }}"
+    #     apply:
+    #       tags: r_router_Extra
+    #   loop: "{{ router_apps }}"
+    #   loop_control:
+    #     loop_var: rapp
+    #   when: rapp in roles
+    #   tags: r_router_extra
+# - name: Include tasks for "{{ facts.os_info }}"
+#   include_tasks: "{{ facts.distro_lower }}.yml"
+#   ignore_errors: yes

@@ -1,0 +1,46 @@
+# {{ item.value.comment|default(item.key) }}
+*{{ item.value.table|default('filter') }}
+{# Variable Definitions #}
+{% set action = "goto" %}
+{% set main_chain = "INPUT" %}
+
+{%- if item.value.chain is defined %}
+{% set main_chain = item.value.chain %}
+{% endif -%}
+
+{%- if item.value.add_chain|default(True) %}
+{% set sub_chain = item.key %}
+:{{ item.key }} - [0:0]
+{% else %}
+{% set sub_chain = main_chain %}
+{% endif -%}
+
+
+{%- if item.value.rule is defined %}
+{% set rule = item.value.rule %}
+{% if item.value.passthrough|default(False) %}
+{% set action = "action" %}
+{% endif %}
+{% if item.value.add_chain|default(True) and rule.to_local_chain|default(True) %}
+{% set _ = rule.__setitem__(action, sub_chain) %}
+{% endif %}
+{% elif item.value.add_chain|default(True) %}
+{% set rule = {
+    'chain': item.value.chain|default(main_chain),
+    'comment': item.value.comment|default("Process requests in %s" % sub_chain),
+    action: sub_chain
+}%}
+{% endif -%}
+
+{% if rule is defined %}
+{{ rule|make_iptable_rule }}
+{% endif %}
+
+{% for entry in item.value.rules|default([]) if not entry.disabled|default(False) %}
+{% set rules = entry | make_iptable_rule %}
+{% for l in rules.split('\n') %}
+{% if entry.chain is not defined %}-A {{ sub_chain }} {% endif %}{{ l }}
+{% endfor %}
+{% endfor -%}
+
+COMMIT

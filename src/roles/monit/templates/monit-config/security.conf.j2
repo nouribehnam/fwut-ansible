@@ -1,0 +1,103 @@
+check file passwd-f with path /etc/passwd
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/passwd"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+check file shadow with path /etc/shadow
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/shadow"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+check file group with path /etc/group
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/group"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+#########SUDO MONITOR
+check file sudoers with path /etc/sudoers
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/sudoers"       
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+#check file sudoers-arvan with path /etc/sudoers.d/arvan
+#  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/sudoers.d/arvan"
+#  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+##########SSH MONITOR
+check process sshd_process with pidfile /var/run/sshd.pid
+  if changed pid then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+check file ssh with path /usr/bin/ssh
+  if changed checksum then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+#check file libkeyutil1 with path /lib/x86_64-linux-gnu/libkeyutils.so.1
+#  if changed checksum then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+#
+
+check file libkeyutil15 with path /lib64/libkeyutils.so.1.5
+  if changed checksum then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+check file sshd_config with path /etc/ssh/sshd_config
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/ssh/sshd_config"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+check file sshd with path /usr/sbin/sshd
+  if changed checksum then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+check file services with path /etc/services
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/services"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+#check file ssh-root with path /root/.ssh/authorized_keys
+#  if changed checksum then exec "/usr/local/sbin/monit/filediff /root/.ssh/authorized_keys"
+#  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+#  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+#########GRUB MONITOR
+check file grub with path /boot/grub2/grub.cfg
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /boot/grub2/grub.cfg"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+########CRONTAB MONITOR
+check file crontab with path /etc/crontab
+  if changed checksum then exec "/usr/local/sbin/monit/filediff /etc/crontab"
+  if changed permission then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed uid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+  if failed gid "root"  then exec "/usr/local/sbin/monit/change_state_file.sh"
+
+#############Login Attempts
+check file login-attempts with path /var/log/secure
+  if changed checksum then exec "/usr/local/sbin/monit/sshdlogmon"
+
+##########Package List Monitor
+check program package-list with path "/usr/local/sbin/monit/packagelistdiff"
+  if status != 0 then exec "/usr/local/sbin/monit/send-packagelist.sh"
+
+##########Monitor Directories MD5
+check program directories-MD5 with path "/usr/local/sbin/monit/dirmd5mon"
+  if status != 0 then exec "/usr/local/sbin/monit/change_state_file.sh"

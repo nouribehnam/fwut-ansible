@@ -1,0 +1,8 @@
+---
+# - name: Update apt cache
+#   become: true
+#   apt:
+#     update_cache: yes
+#   environment:
+#     http_proxy: "{{ proxy.http is defined | ternary(proxy.http, omit) }}"
+#     https_proxy: "{{ proxy.https is defined | ternary(proxy.https, omit) }}"

@@ -1,0 +1,17 @@
+---
+role_common_config_files:
+  - { src: "{{ config_files_path }}/configs/color_prompt.sh", dest: "/etc/profile.d/color_prompt.sh" }
+  - { src: "{{ config_files_path }}/configs/ssh-agent.sh", dest: "/etc/profile.d/ssh-agent.sh" }
+  - { src: "{{ config_files_path }}/configs/useful_alias.sh", dest: "/etc/profile.d/useful_alias.sh" }
+  - { src: "{{ config_files_path }}/configs/colorgrep.sh", dest: "/etc/profile.d/colorgrep.sh" }
+  - { src: "{{ config_files_path }}/configs/colorls.sh", dest: "/etc/profile.d/colorls.sh" }
+  - { src: "{{ config_files_path }}/configs/admin_sudoers", dest: "/etc/sudoers.d/admin" }
+  - { src: "{{ config_files_path }}/configs/bashrc", dest: "{{ os.paths.bashrc|default('/etc/bashrc') }}"}
+  - { src: "{{ config_files_path }}/configs/banner", dest: "/etc/banner" }
+  - { src: "{{ config_files_path }}/configs/.bashrc", dest: "/etc/skel/.bashrc" }
+  - { src: "{{ config_files_path }}/configs/screenrc", dest: "/etc/screenrc" }
+
+debian_lo_v4:
+  inet: loopback
+debian_lo_v6:
+  inet6: loopback

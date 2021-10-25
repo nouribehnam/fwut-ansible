@@ -1,0 +1,14 @@
+---
+# - name: import vars
+#   include_vars:
+#     dir: vars
+#     ignore_files : main.yml
+#   tags: always
+- name: Install wireguard
+  import_tasks: install.yml
+  tags: r_wireguard_install
+- name: Remove Wireguard
+  import_tasks: remove.yml
+  tags:
+    - never
+    - ROLE_WIREGUARD_REMOVE

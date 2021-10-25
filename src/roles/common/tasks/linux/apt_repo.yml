@@ -1,0 +1,34 @@
+---
+- name: Ensure sources list file
+  copy:
+    content: "# Please add sources in /etc/apt/sources.list.d\n"
+    dest: /etc/apt/sources.list
+- name: Ensure default repositories
+  template:
+    src: debian/sources.j2
+    dest: /etc/apt/sources.list.d/{{ item.key }}.list
+  loop: "{{ repo_list|dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: not item.value.disabled|default(False)
+- name: Remove disabled default repositories
+  file:
+    dest: /etc/apt/sources.list.d/{{ item.key }}.list
+    state: absent
+  loop: "{{ repo_list|dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: item.value.disabled|default(False)
+- name: Ensure proxy configuration for APT
+  template:
+    src: debian/apt_proxy.j2
+    dest: /etc/apt/apt.conf.d/02proxy
+    # dest: /etc/apt/apt.conf.d/02{{item.key|slugify}}_proxy
+  # loop: "{{ repo_list|dict2items }}"
+  # loop_control:
+  #   label: "{{ item.key }}"
+  when:
+    - ho_apt_use_proxy|default(False)
+    - proxy is defined
+    - (proxy.http is defined) or (proxy.https is defined)
+    # - item.value.needs_internet|default(True)

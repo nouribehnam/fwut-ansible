@@ -1,0 +1,10 @@
+---
+- name: become
+  become: yes
+  block:
+  - name: Installation
+    import_tasks: install.yml
+    tags: r_bacula_install
+  - name: Configuration
+    import_tasks: config.yml
+    tags: r_bacula_config

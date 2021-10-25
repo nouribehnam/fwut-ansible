@@ -1,0 +1,23 @@
+---
+- name: Enable Docker
+  become: yes
+  systemd:
+    name: "{{ os.services_name.docker|default('docker') }}"
+    enabled: yes
+- name: Start Docker
+  become: yes
+  systemd:
+    name: "{{ os.services_name.docker|default('docker') }}"
+    state: started
+- name: Stop Docker
+  become: yes
+  systemd:
+    name: "{{ os.services_name.docker|default('docker') }}"
+    state: stopped
+- name: Restart Docker
+  become: yes
+  systemd:
+    name: "{{ os.services_name.docker|default('docker') }}"
+    state: restarted
+- name: Reload Facts
+  setup: filter=ansible_local

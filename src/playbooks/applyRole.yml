@@ -1,0 +1,27 @@
+---
+- hosts: "{{ target_hosts | mandatory }}"
+  vars:
+    sysAdmin_path: Play_sysAdmin
+  handlers:
+    - import_tasks: "{{ sysAdmin_path }}/handlers/network.yml"
+    - import_tasks: "{{ sysAdmin_path }}/handlers/service.yml"
+    - import_tasks: "{{ sysAdmin_path }}/handlers/system.yml"
+  pre_tasks:
+    - include_tasks: tasks/global-pre.yml
+      tags: always
+  tasks:
+    - name: Ensure {{ role }} is assignet to {{ inventory_hostname }}
+      assert:
+        that:
+          - roles is defined
+          - role in roles
+        fail_msg: "{{ role }} is not assigned to {{ inventory_hostname }}, if you still want to do this try with --skip-tags=force_role_definition"
+      tags: 
+        - always
+        - force_role_definition
+    - name: Import Role
+      import_role: 
+        name: "{{ role|mandatory }}"
+  post_tasks:
+    - include_tasks: tasks/global-post.yml
+      tags: always

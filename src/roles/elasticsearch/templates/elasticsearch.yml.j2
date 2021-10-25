@@ -1,0 +1,30 @@
+node.name: {{ options.hostname }}
+cluster.name: {{ options.cluster_name }}
+discovery.seed_hosts: {{ elasticsearch_discovery_seed_hosts }}
+cluster.initial_master_nodes: {{ elasticsearch_cluster_initial_master_nodes }}      
+{% if options.master == "true" %}
+node.master: true
+node.data: false
+{% else %}
+node.master: false
+node.data: true
+{% endif %}
+node.max_local_storage_nodes: {{ elasticsearch.nodes|length }}
+http.port: {{ options.http_port }}
+transport.tcp.port: {{ options.transport_tcp_port }}
+http.host: 0.0.0.0
+transport.host: 0.0.0.0
+bootstrap.memory_lock: true
+path.data: {{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ options.hostname }}/data
+path.repo: {{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ options.hostname }}/backup
+path.logs: /var/log/elasticsearch/{{ options.hostname }}
+xpack.monitoring.collection.enabled: true
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.keystore.path: {{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ options.hostname }}/config/elastic-certificates.p12
+xpack.security.transport.ssl.truststore.path: {{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ options.hostname }}/config/elastic-certificates.p12
+
+#elasticsearch_extra_options:
+{{ options.elasticsearch_extra_options }}
+

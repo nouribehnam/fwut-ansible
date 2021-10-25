@@ -1,0 +1,17 @@
+---
+- name: restart bacula-services
+  service: 
+    name: '{{ item }}'
+    state: restarted
+  become: yes
+  with_items:
+  - bacula-director
+  - bacula-dir
+  - bacula-sd
+  - bacula-fd
+
+- name: restart apache2
+  service: 
+    name: 'apache2'
+    state: restarted
+  become: yes  

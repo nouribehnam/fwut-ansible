@@ -1,0 +1,11 @@
+---
+r_postgresql_postgresql_version: "9.2"
+r_postgresql_postgresql_data_dir: "/var/lib/pgsql/data"
+r_postgresql_postgresql_bin_path: "/usr/bin"
+r_postgresql_postgresql_config_path: "/var/lib/pgsql/data"
+r_postgresql_postgresql_daemon: postgresql
+r_postgresql_postgresql_packages:
+  - postgresql
+  - postgresql-server
+  - postgresql-contrib
+  - postgresql-libs

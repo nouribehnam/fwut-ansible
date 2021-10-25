@@ -1,0 +1,8 @@
+local ENDPOINTS="{{ options.endpoints|join(',') }}"
+local LOGIN={{ options.username }}
+{% if secrets.openconnect[peer_name]['password'] is defined %}
+local PASSWORD={{ secrets.openconnect[peer_name]['password']|string|b64encode }}
+{% endif %}
+{% if options.extra is defined %}
+local configfile={{ r_openconnect_script_files_config_path }}/{{ peer_name }}/oconfig
+{% endif %}

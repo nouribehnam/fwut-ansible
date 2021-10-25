@@ -1,0 +1,12 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Installation
+      tags: r_php_install
+      block:
+        - name: Ensure PHP Repo
+          yum:
+            name: "{{ os.repositories.php }}"
+          notify: yum-clean-metadata
+

@@ -1,0 +1,56 @@
+#!/bin/bash
+
+function t_log {
+    if [ $COLOR -eq 1 ]; then
+        echo -e "\e[36m$(date '+%Y-%m-%d %H:%M:%S'):\e[39m $*" | tee -a $LOG_FILE
+    else
+        echo -e "$(date '+%Y-%m-%d %H:%M:%S'): $*" | tee -a $LOG_FILE
+    fi
+}
+
+function s_log {
+    if [ $VERBOSE -ne 1 ] && [ "$1" != "-f" ]; then
+        return
+    fi
+    echo '################################################################################' | tee -a $LOG_FILE
+}
+
+function s2_log {
+    if [ $VERBOSE -ne 1 ] && [ "$1" != "-f" ]; then
+        return
+    fi
+    echo '********************************************************************************' | tee -a $LOG_FILE
+}
+
+function s3_log {
+    if [ $VERBOSE -ne 1 ] && [ "$1" != "-f" ]; then
+        return
+    fi
+    echo '--------------------------------------------------------------------------------' | tee -a $LOG_FILE
+}
+
+function s4_log {
+    if [ $VERBOSE -ne 1 ] && [ "$1" != "-f" ]; then
+        return
+    fi
+    echo '++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++' | tee -a $LOG_FILE
+}
+
+function log {
+    echo -e "$*" | tee -a $LOG_FILE
+}
+
+function a_log {
+    tee -a $LOG_FILE
+}
+
+function v_log {
+    if [ $VERBOSE -ne 1 ] && [ "$1" != "-f" ]; then
+        return
+    fi
+    t_log $*
+}
+
+function tab_log {
+    echo -e "\t $*"
+}

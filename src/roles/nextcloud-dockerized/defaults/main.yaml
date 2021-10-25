@@ -1,0 +1,23 @@
+---
+g_src_path: /usr/local/src
+
+# mysql_variables
+r_mysql_docker_container_name: mysql
+r_mysql_docker_image: mysql
+r_mysql_docker_image_version: latest
+r_mysql_docker_http_port: 3306
+r_mysql_docker_hostname: mysql 
+r_mysql_docker_restart_policy: always
+r_mysql_docker_project_path: mysql
+
+# nextcloud_variables
+r_nextcloud_docker_container_name: nextcloud
+r_nextcloud_docker_image: nextcloud
+r_nextcloud_docker_image_version: latest
+r_nextcloud_docker_http_port: 80
+r_nextcloud_docker_hostname: nextcloud 
+r_nextcloud_docker_restart_policy: always
+r_nextcloud_docker_project_path: nextcloud
+
+
+ 

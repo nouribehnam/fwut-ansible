@@ -1,0 +1,22 @@
+---
+- name: Include extra options
+  include_vars:
+    dir: vars
+    ignore_files : main.yml
+  tags: always
+- name: Ensure router role is not present
+  assert:
+    that: "'router' not in roles"
+    fail_msg: "Firewall role and router role can't be assign to one host"
+  tags: always
+- name: Role dependencies
+  block:
+    - name: Firewall APP Role
+      import_role:
+        name: AppFirewall
+# - name: Include tasks for "{{ facts.os_info }}"
+#   include_tasks:
+#     file: "{{ facts.distro_lower }}.yml"
+#     apply:
+#       tags: OS
+#   tags: OS

@@ -1,0 +1,18 @@
+---
+- name: Become
+  become: yes
+  tags: r_nginx_config_default
+  block:
+    - name: Ensure default configs
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: "{{ item.owner|default(omit) }}"
+        group: "{{ item.group|default(omit) }}"
+        mode: "{{ item.mode|default(omit) }}"
+        # validate: "{{ item.validate|default(True)|ternary(AppNginx.validation, omit) }}"
+      loop: "{{ AppNginx.config_templates }}"
+      register: files_modified
+    - name: Reload tmpsfile
+      command: systemd-tmpfiles --create
+      when: files_modified.changed and files_modified.results[0].changed 

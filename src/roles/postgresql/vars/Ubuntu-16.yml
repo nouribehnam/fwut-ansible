@@ -1,0 +1,10 @@
+---
+r_postgresql_postgresql_version: "9.5"
+r_postgresql_postgresql_data_dir: "/var/lib/postgresql/{{ r_postgresql_postgresql_version }}/main"
+r_postgresql_postgresql_bin_path: "/usr/lib/postgresql/{{ r_postgresql_postgresql_version }}/bin"
+r_postgresql_postgresql_config_path: "/etc/postgresql/{{ r_postgresql_postgresql_version }}/main"
+r_postgresql_postgresql_daemon: postgresql
+r_postgresql_postgresql_packages:
+  - postgresql
+  - postgresql-contrib
+  - libpq-dev

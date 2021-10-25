@@ -1,0 +1,31 @@
+*mangle
+{% if firewall_default_mangle_rules_v6 is defined %}
+{% for item_key, item_value in firewall_default_mangle_rules_v6.items() %}
+
+# {{ item_value.comment|default(item_key) }}
+:{{ item_key }} {{ item_value.policy|default('-') }} [0:0]
+{% if item_key not in r_AppFirewall.mangle_main_chains and item_value.add_chain_rule|default(True)|bool  %}
+{% set rule={ 
+    'chain': item_value.chain|default('PREROUTING'),
+    'comment': item_value.comment|default(item_key),
+    'action': item_key
+}%}
+{{ rule|make_iptable_rule }}
+{% endif %}
+{% for entry in item_value.rules|default([]) if not entry.disabled|default(False)|bool %}
+{% if entry.chain is not defined %}-A {{ item_key }} {% endif %}{{ entry | make_iptable_rule }}
+{% endfor -%}
+{% endfor %}
+
+{% for chain in r_AppFirewall.mangle_main_chains if chain not in firewall_default_mangle_rules_v6 %}
+:{{ chain }} ACCEPT [0:0]
+{% endfor %}
+{% else %}
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+{% endif %}
+
+COMMIT

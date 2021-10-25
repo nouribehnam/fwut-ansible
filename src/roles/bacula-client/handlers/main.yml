@@ -1,0 +1,18 @@
+---
+- name: Restart Bacula File Director
+  become: yes
+  block:
+  - name: "(Handler: All Linux/Unix OSs) Restart bacula-fd"
+    service:
+      name: bacula-fd
+      state: restarted
+
+  - name: "(Handler: All OpenBSD OSs) Restart bacula-fd"
+    service:
+      name: bacula_fd
+      state: restarted
+
+  - name: "(Handler: All Windows OSs) Restart bacula-fd"
+    win_service:
+      name: Bacula-fd
+      state: restarted

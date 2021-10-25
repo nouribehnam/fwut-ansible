@@ -1,0 +1,22 @@
+---
+- name : "Become block"
+  become: yes
+  block:
+    - name: "Ensure working directory"
+      file:
+        path: "{{ g_src_path }}/{{ r_cadvisor_dock_project_path }}"
+        state: directory
+
+    - name: "Create cadvisor docker-compose file"
+      template:
+        dest: "{{ g_src_path }}/{{ r_cadvisor_dock_project_path }}/docker-compose.yml"
+        src: "docker-compose.j2"
+        owner: ansible
+        group: docker
+        mode: 644
+
+    - name: "execute docker-compose to run cadvisor docker image"
+      docker_compose:
+        project_src: "{{ g_src_path }}/{{ r_cadvisor_dock_project_path }}"
+        state: present
+        

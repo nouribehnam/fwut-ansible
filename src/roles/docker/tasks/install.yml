@@ -1,0 +1,71 @@
+---
+- name: Become
+  become: yes
+  tags: r_docker_install
+  block:
+    - name: Packages
+      tags: r_docker_packages
+      block:
+        - name: Remove OS docker packages
+          package:
+            name: "{{ r_docker_packages_rm }}"
+            state: absent
+        - name: OS Prerequisites
+          package:
+            name: "{{ r_docker_preq[facts.distro_lower][facts.distro_major] }} "
+          when: r_docker_preq[facts.distro_lower][facts.distro_major] is defined
+        - name: Ensure Docker packages
+          package: 
+            name: "{{ r_docker_packages_ins }}"
+        - name: Ensure docker pip modules
+          pip:
+            name: 
+              - docker
+              - docker-compose>=1.7.0
+          environment: 
+            HTTP_PROXY: "{{ ((proxy.http is defined) and (not ho_has_internet)) | ternary(proxy.http, None) }}"
+            HTTPS_PROXY: "{{ ((proxy.https is defined) and (not ho_has_internet)) | ternary(proxy.https, None) }}"
+        - name: Ensure docker-compose program
+          get_url:
+            url: "{{ r_docker_compose_url }}"
+            dest: "{{ r_docker_compose_bin_path }}"
+            use_proxy: "{{ not ho_has_internet|bool }}"
+          environment:
+            http_proxy: "{{ ((proxy.http is defined) and (not ho_has_internet)) | ternary(proxy.http, None) }}"
+            https_proxy: "{{ ((proxy.https is defined) and (not ho_has_internet)) | ternary(proxy.https, None) }}"
+        - name: Ensure docker-compose permissions
+          file:
+            path: "{{ r_docker_compose_bin_path }}"
+            mode: 0755
+            owner: root
+            group: docker
+
+        - name: Ensure docker-compose fact
+          copy:
+            src: docker_compose.fact
+            dest: /etc/ansible/facts.d/docker_compose.fact
+            mode: 0755
+
+        - name: Configuration
+          tags: r_docker_config
+          block:
+            - name: Ensure /etc/docker exists
+              become: yes
+              file:
+                path: /etc/docker
+                state: directory
+            - name: Ensure daemon config
+              template:
+                src: daemon.j2
+                dest: /etc/docker/daemon.json
+              notify:
+                - Restart Docker
+            - name: Add docker useful aliases
+              copy:
+                src: docker-aliases
+                dest: /etc/profile.d/z99-docker-aliases.sh
+        - name: Ensure docker service is enabled and started
+          systemd:
+            name: "{{ os.services_name.docker|default('docker') }}"
+            enabled: yes
+            state: started

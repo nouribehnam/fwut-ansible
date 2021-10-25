@@ -1,0 +1,11 @@
+r_openconnect_script_files:
+    - script.j2
+    - up.j2
+    - down.j2
+r_openconnect_packages:
+    debian:
+        - openconnect
+    ubuntu:
+        - openconnect
+    centos:
+        - openconnect

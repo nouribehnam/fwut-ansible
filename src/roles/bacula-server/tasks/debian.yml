@@ -1,0 +1,15 @@
+---
+- name: Baculum Repo
+  when: r_bacula_install_webgui
+  block:
+  - name: Ensure Baculum gpg signing key
+    apt_key:
+      url: "{{ r_bacula_repos[facts.os_dist_ver]['gpg_key'] }}"
+      state: present
+  - name: Ensure Baculum repository
+    apt_repository:
+      repo: "deb {{ r_bacula_repos[facts.os_dist_ver]['repo'] }}"
+      update_cache: yes
+      filename: baculum
+      state: present
+      update_cache: true

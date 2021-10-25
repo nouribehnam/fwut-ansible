@@ -1,0 +1,8 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Remove openconnect package
+      package:
+        name: "{{ os.packages.openconnect|default('openconnect') }}"
+        state: absent

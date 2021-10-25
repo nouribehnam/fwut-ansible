@@ -1,0 +1,33 @@
+---
+- name : "Become block"
+  become: yes
+  environment: 
+    http_proxy: "{{ proxy.http }}"
+    https_proxy: "{{ proxy.http }}"
+  block:
+    - name: "Ensure working directory"
+      file:
+        path: "{{ g_src_path }}/{{ r_artifactory_dock_project_path }}"
+        state: directory
+    - name: "Create artifactory docker-compose file"
+      template:
+        dest: "{{ g_src_path }}/{{ r_artifactory_dock_project_path }}/docker-compose.yml"
+        src: "docker-compose.j2"
+        owner: ansible
+        group: docker
+        mode: '0666'
+    - name: "execute docker-compose to run artifactory docker image"
+      docker_compose:
+        project_src: "{{ g_src_path }}/{{ r_artifactory_dock_project_path }}"
+        state: present
+    - name: "Ensure data directory permissions"
+      file:
+        path: /data/artifactory
+        state: directory
+        recurse: yes
+        owner: 1030
+    - name: "restart docker-compose artifactory container"
+      docker_compose:
+        project_src: "{{ g_src_path }}/{{ r_artifactory_dock_project_path }}"
+        state: present
+        restarted: yes

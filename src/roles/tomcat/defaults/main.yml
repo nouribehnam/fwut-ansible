@@ -1,0 +1,7 @@
+r_tomcat_user: tomcat
+r_tomcat_group: tomcat
+r_tomcat_version: 8.0.3
+r_tomcat_install_base: /opt/tomcat
+r_tomcat_catalina_options: -Xms512M -Xmx1024M
+r_tomcat_java_options: -Djava.awt.headless=true
+# r_tomcat_java_home: /usr/lib/jvm/jre

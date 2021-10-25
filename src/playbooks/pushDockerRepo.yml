@@ -1,0 +1,27 @@
+---
+- hosts: "{{ target_hosts | mandatory }}"
+  vars:
+    sysAdmin_path: Play_sysAdmin
+  handlers:
+    - import_tasks: "{{ sysAdmin_path }}/handlers/network.yml"
+    - import_tasks: "{{ sysAdmin_path }}/handlers/service.yml"
+    - import_tasks: "{{ sysAdmin_path }}/handlers/system.yml"
+  pre_tasks:
+    - include_tasks: tasks/global-pre.yml
+      tags: always
+  tasks:
+    - name: Pull image
+      docker_image:
+        name: "{{ remote_repo|default('') }}{{ image_name }}"
+        tag: "{{ image_tag|default(omit) }}"
+        source: pull
+    - name: Tag and push image
+      docker_image:
+        name: "{{ remote_repo|default('') }}{{ image_name }}"
+        repository: "{{ repo }}/{{ image_name }}"
+        tag: "{{ image_tag|default(omit) }}"
+        source: local
+        push: yes
+  post_tasks:
+    - include_tasks: tasks/global-post.yml
+      tags: always

@@ -1,0 +1,37 @@
+---
+- name: Generate local address list
+  when: firewall.address_list is defined
+  block:
+    - name: Ensure local address list folder
+      file:
+        path: "{{ r_AppFirewall.local_lists_folder }}"
+        state: directory
+    - name: Generate Host Address list
+      template:
+        src: lists/local_list.j2
+        dest: "{{ r_AppFirewall.local_lists_folder }}/{{ item.key }}.ipset"
+        mode: 0644
+      loop: "{{ firewall.address_list|default({})|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: not item.value.disabled|default(False)|bool
+      diff: yes
+      notify:
+        - Restart Firewall
+    - name: Remove disabled Address list
+      file:
+        path: "{{ r_AppFirewall.local_lists_folder }}/{{ item.key }}.ipset"
+        state: absent
+      loop: "{{ firewall.address_list|default({})|dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      when: item.value.disabled|default(False)|bool
+      notify:
+        - Restart Firewall
+- name: Remove Host Address list
+  when: firewall.address_list is not defined
+  file:
+    path: "{{ r_AppFirewall.local_lists_folder }}/"
+    state: absent
+  notify:
+    - Restart Firewall

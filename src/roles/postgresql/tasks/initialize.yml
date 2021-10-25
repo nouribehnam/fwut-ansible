@@ -1,0 +1,30 @@
+---
+- name: Initialize
+  become: yes
+  block:
+    - name: Set PostgreSQL environment variables.
+      template:
+        src: postgres.sh.j2
+        dest: /etc/profile.d/postgres.sh
+        mode: 0644
+      notify: restart postgresql
+
+    - name: Ensure PostgreSQL data directory exists.
+      file:
+        path: "{{ r_postgresql_postgresql_data_dir }}"
+        owner: "{{ r_postgresql_postgresql_user }}"
+        group: "{{ r_postgresql_postgresql_group }}"
+        state: directory
+        mode: 0700
+
+    - name: Check if PostgreSQL database is initialized.
+      stat:
+        path: "{{ r_postgresql_postgresql_data_dir }}/PG_VERSION"
+      register: pgdata_dir_version
+
+    - name: Ensure PostgreSQL database is initialized.
+      command: "{{ r_postgresql_postgresql_bin_path }}/initdb -D {{ r_postgresql_postgresql_data_dir }}"
+      when: not pgdata_dir_version.stat.exists
+      become_user: "{{ r_postgresql_postgresql_user }}"
+      vars:
+        ansible_ssh_pipelining: true

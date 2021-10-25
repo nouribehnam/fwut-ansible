@@ -1,0 +1,25 @@
+---
+- name: Include OS specific variables
+  become: yes
+  include_vars: "{{ facts.distro }}.yml" 
+
+- name: Discover Bacula server name
+  set_fact: 
+    r_bacula_server_name: "{{hostvars[item].r_bacula_server_name}}"
+  loop: "{{ groups['grp_role_bacula_server'] }}"
+  
+- name: Ensure Bacula base configs
+  template:
+    src: bacula-config.j2
+    dest: "{{r_bacula_config_dir}}/{{config_file.key}}.conf"
+    owner: "{{config_file.value.owner|default(omit)}}"
+    group: "{{config_file.value.group|default(omit)}}"
+    mode: "{{config_file.value.group|default('0666')}}"
+  loop: "{{ r_bacula_client_configs|combine(r_bacula_default_configs,recursive=True)|dict2items }}"
+  loop_control:
+    label: "{{config_file.key }}"
+    loop_var: config_file
+  vars:
+    config_options: "{{config_file.value.options}}"
+    r_bacula_server_name: r_bacula_server_name.stdout
+  notify: "(Handler: All Linux/Unix OSs) Restart bacula-fd"

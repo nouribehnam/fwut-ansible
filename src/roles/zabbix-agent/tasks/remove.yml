@@ -1,0 +1,10 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Remove zabbix packages
+      tags: ROLE_ZABBIX_REMOVE
+      package:
+        name: "{{ item.name }}"
+        state: absent
+      with_items: "{{ r_zabbix_agent_packages }}"

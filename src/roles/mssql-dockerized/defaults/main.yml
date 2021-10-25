@@ -1,0 +1,12 @@
+---
+mssql_path_base: /data/mssql
+mssql_docker_image: mcr.microsoft.com/mssql/server
+mssql_container_name: mssql
+mssql_container_restart: always
+mssql_stop_gracce_period: 120s
+mssql_sa_password:
+mssql_pid: Express
+
+mssql_instances:
+  mssql: {}
+  

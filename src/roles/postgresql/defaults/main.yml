@@ -1,0 +1,34 @@
+---
+# RHEL/CentOS only. Set a repository to use for PostgreSQL installation.
+r_postgresql_postgresql_enablerepo: ""
+
+r_postgresql_postgresql_user: postgres
+r_postgresql_postgresql_group: postgres
+
+r_postgresql_postgresql_python_library: python-psycopg2
+
+# `md5` or `scram-sha-256`.
+r_postgresql_postgresql_auth_method: "{{ ansible_fips  | ternary('scram-sha-256', 'md5') }}"
+
+r_postgresql_postgresql_unix_socket_directories:
+  - /var/run/postgresql
+
+# Global configuration options that will be set in postgresql.conf.
+r_postgresql_postgresql_global_config_options:
+  - option: unix_socket_directories
+    value: '{{ r_postgresql_postgresql_unix_socket_directories | join(",") }}'
+
+# Host based authentication (hba) entries to be added to the pg_hba.conf. This
+# variable's defaults reflect the defaults that come with a fresh installation.
+r_postgresql_postgresql_hba_entries:
+  - {type: local, database: all, user: postgres, auth_method: peer}
+  - {type: local, database: all, user: all, auth_method: peer}
+  - {type: host, database: all, user: all, address: '127.0.0.1/32', auth_method: "{{ r_postgresql_postgresql_auth_method }}"}
+  - {type: host, database: all, user: all, address: '::1/128', auth_method: "{{ r_postgresql_postgresql_auth_method }}"}
+
+# Debian only. Used to generate the locales used by PostgreSQL databases.
+r_postgresql_postgresql_locales:
+  - 'en_US.UTF-8'
+
+# Whether to output user data when managing users.
+r_postgresql_postgresql_users_no_log: "true"

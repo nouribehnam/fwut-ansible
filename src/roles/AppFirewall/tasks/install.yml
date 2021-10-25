@@ -1,0 +1,44 @@
+---
+- name: Ensure firewall packages
+  package:
+    name: '{{ os.packages.firewall }}'
+    state: present
+  tags:
+    - r_AppFirewall_packages
+
+- name: Firewall files and folders
+  tags: r_AppFirewall_files_folders
+  ignore_errors: '{{ ansible_check_mode }}'
+  block:
+  - name: Ensure firewall files
+    copy:
+      src: "firewall"
+      dest: "/opt"
+      owner: root
+      group: root
+    notify:
+      - Daemon Reload
+      - Enable Firewall
+      - Restart Firewall
+  - name: Ensur Firewall bin permission
+    file:
+      path: "{{ r_AppFirewall.bin_folder }}/firewall.sh"
+      mode: 0744
+  - name: Ensure Firewall script
+    file:
+      src: "{{ r_AppFirewall.bin_folder }}/firewall.sh"
+      path: /usr/sbin/firewall
+      state: link
+  - name: Ensure Firewall Service file
+    file:
+      src: "{{ r_AppFirewall.data_folder }}/firewall.service"
+      dest: /etc/systemd/system/firewall.service
+      state: link
+- name: Ensure firewall service is enabled and started
+  systemd:
+    name: firewall
+    state: started
+    enabled: yes
+  tags:
+    - r_AppFirewall_service
+  ignore_errors: '{{ ansible_check_mode }}'

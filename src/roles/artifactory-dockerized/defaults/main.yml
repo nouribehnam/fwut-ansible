@@ -1,0 +1,20 @@
+# artifactory variables
+
+# docker_compose_variables
+r_artifactory_dock_container_name: "artifactory"
+r_artifactory_dock_docker_image: "docker.bintray.io/jfrog/artifactory-pro"
+r_artifactory_dock_docker_image_version: "latest"
+
+g_src_path: /usr/local/src
+r_artifactory_dock_project_path: "artifactory"
+
+# network_mode can be host or default
+r_artifactory_dock_network_mode: "default"
+
+# set host_port if network_mode is set to to default
+r_artifactory_dock_host_port_1: 8081
+r_artifactory_dock_host_port_2: 8082
+r_artifactory_dock_doc_restart_policy: "always"
+
+# Volumes
+r_artifactory_dock_data_vol: /data/artifactory/var

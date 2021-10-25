@@ -1,0 +1,12 @@
+{% for o in options.extra|default({})|dict2items %}
+{{ o.key }}{% if o.value != None %}={{ o.value }}{% endif %}
+
+{% endfor %}
+script={{ r_openconnect_script_files_config_path }}/{{ peer_name }}/script
+{% if options.certificate is defined %}
+certificate={{ r_openconnect_script_files_config_path }}/{{ peer_name }}/cert
+sslkey={{ r_openconnect_script_files_config_path }}/{{ peer_name }}/key
+{% endif %}
+{% if options.cacert is defined %}
+cafile={{ r_openconnect_script_files_config_path }}/{{ peer_name }}/ca
+{% endif %}

@@ -1,0 +1,18 @@
+---
+- name: Ubuntu tasks
+  become: true
+  environment:
+    HTTP_PROXY: "{{ proxy.http }}"
+    HTTPS_PROXY: "{{ proxy.https }}" 
+  block:
+    - name: Add td-agent apt key
+      apt_key:
+        url: "{{ r_fluentbit_repos[facts.distro_lower][facts.distro_major]['gpg']|mandatory}}"
+        state: present
+
+    - name: Add td-agent repository
+      apt_repository:
+        repo: "deb {{ r_fluentbit_repos[facts.distro_lower][facts.distro_major]['url']|mandatory}} bionic main"
+        state: present
+        filename: td-agent-bit
+        update_cache: true

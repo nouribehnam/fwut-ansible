@@ -1,0 +1,15 @@
+{% macro section(section_info) %}
+{{section_info.name}} {
+{% for option_key, option_value in (section_info.options|default({})).items() %}
+{% if option_value|type_debug == "list" %}
+{% for i in option_value %}
+    {{option_key}} = {{i}}
+{% endfor %}
+{% elif option_value|type_debug == "dict" %}
+    {{ section({'name': option_key, 'options': option_value})|indent }}
+{% else %}
+    {{ option_key }} = {{ option_value }}
+{% endif %}
+{% endfor %}
+}
+{% endmacro %}

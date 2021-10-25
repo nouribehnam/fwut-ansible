@@ -1,0 +1,21 @@
+#jinja2: trim_blocks:False
+version: "3.8"
+services:
+  node-exporter:
+    container_name: "{{ r_ne_dock_container_name }}"
+    image: "{{ r_ne_dock_docker_image }}:{{ r_ne_dock_docker_image_version }}"
+    {% if r_ne_dock_network_mode == "host" %}network_mode: "{{ r_ne_dock_network_mode }}"{% endif %}
+    {% if r_ne_dock_network_mode == "default" %}
+    ports:
+      - "{{ r_ne_dock_host_port }}:9100"
+    {% endif %}
+    volumes:
+      - {{ r_ne_dock_proc_vol }}:/host/proc:ro
+      - {{ r_ne_dock_sys_vol }}:/host/sys:ro
+      - {{ r_ne_dock_slash_vol }}:/rootfs:ro 
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: "{{ r_ne_dock_doc_restart_policy }}"

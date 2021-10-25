@@ -1,0 +1,14 @@
+---
+- name: Become
+  become: yes
+  tags: r_php_config_default
+  block:
+    - name: Ensure Nginx PHP configs
+      when: 
+        - '"nginx" in roles'
+      template:
+        src: nginx-php.j2
+        dest: "{{ AppNginx_snippets_path }}/php.conf"
+        owner: "{{ AppNginx_user }}"
+        group: "{{ AppNginx_group }}"
+        mode: 0664

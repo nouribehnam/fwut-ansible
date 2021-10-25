@@ -1,0 +1,21 @@
+- name: stop firewall service
+  systemd:
+    name: firewall
+    state: stopped
+    enabled: no
+    daemon_reload: yes
+    masked: yes
+- name: Remove Firewall files
+  file:
+    path: "/opt/firewall"
+    state: absent
+
+- name: Remove Firewall script
+  file:
+    path: /usr/sbin/firewall
+    state: absent
+
+- name: Remove Firewall Service file
+  file:
+    path: /etc/systemd/system/firewall.service
+    state: absent

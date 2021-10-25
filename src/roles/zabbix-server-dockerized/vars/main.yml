@@ -1,0 +1,34 @@
+# Zabbix-server config variables
+r_zbx_server_default_config:
+  DebugLevel: 3
+  LogType: file
+  DBHost: 192.168.250.7
+  DBName: zabbix
+  DBUser: zabbix
+  DBPassword: P123456p
+  DBPort: 5432
+  StartPollers: 20
+  StartIPMIPollers: 5
+  StartPreprocessors: 9
+  StartPollersUnreachable: 10
+  StartTrappers: 5
+  StartPingers: 10
+  StartDiscoverers: 10
+  StartHTTPPollers: 3
+  StartTimers: 10
+  StartEscalators: 6
+  StartAlerters: 6
+  JavaGateway: 192.168.250.6
+  JavaGatewayPort: 10052
+  StartJavaPollers: 10
+  StartVMwareCollectors: 9
+  VMwareCacheSize: 128M
+  VMwareTimeout: 30
+  CacheSize: 2048M
+  StartDBSyncers: 12
+  HistoryCacheSize: 512M
+  HistoryIndexCacheSize: 256M
+  TrendCacheSize: 512M
+  ValueCacheSize: 4096M
+  Timeout: 30
+  TrapperTimeout: 300

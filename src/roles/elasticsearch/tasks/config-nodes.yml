@@ -1,0 +1,29 @@
+---
+- name: Ensure {{ node_name }} folder 
+  file:
+    path: "{{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ node_name }}/{{ item }}/"
+    state: directory
+    owner: elasticsearch
+    group: elasticsearch
+  with_items: "{{ r_elasticsearch.directory }}"
+
+- name: Ensure {{ node_name }} configuration
+  template: 
+    src: "{{item.src}}"
+    dest: "{{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ node_name }}/config/{{item.dest}}"
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0660
+  with_items:
+    - { src: "jvm.options.j2", dest: "jvm.options" }
+    - { src: "elasticsearch.env.j2", dest: "elasticsearch.env" }
+    - { src: "elasticsearch.yml.j2", dest: "elasticsearch.yml" }
+
+- name: Ensure {{ node_name }} certificate and log4j2 
+  copy:
+    src: "{{ item }}"
+    dest: "{{ g_src_path }}/{{ r_elasticsearch_project_path }}/{{ node_name }}/config/"
+    owner: elasticsearch
+    group: elasticsearch
+  with_items: "{{ r_elasticsearch.config_files }}"
+  notify: Restart elasticsearch

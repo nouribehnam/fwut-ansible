@@ -1,0 +1,17 @@
+---
+- name: Become
+  become: yes
+  block:
+    - name: Ensure base folder
+      file:
+        path: "{{ mssql_path_base }}"
+        state: directory
+    # - name: Ensure instances folder
+    #   file:
+    #     path: "{{ mssql_path_base }}/{{ item[0].key }}/{{ item[1] }}"
+    #     state: directory
+    #   with_nested: 
+    #     - "{{ mssql_instances|dict2items }}"
+    #     - ["{{ mssql_path_docker }}", "{{ mssql_path_data }}", "{{ mssql_path_logs }}"]
+    #   loop_control:
+    #     label: "{{ item[0].key }}"

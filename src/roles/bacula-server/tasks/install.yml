@@ -1,0 +1,34 @@
+---
+- name: Ensure bacula prereq packages
+  package:
+    name: "{{ r_bacula_packages[facts.distro_lower]['prereq'] }}"
+    state: present
+  tags: r_bacula_install_prereq
+- name: OS prerequisite for "{{ facts.os_info }}"
+  include_tasks:
+    file: "{{ facts.distro_lower }}.yml"
+    apply:
+      tags: r_bacula_os_prereq
+  tags: 
+    - always
+- name: Ensure bacula packages
+  package:
+    name: "{{ r_bacula_packages[facts.distro_lower]['bacula'][r_bacula_dbtype] }}"
+    state: present
+  tags: r_bacula_install_packages
+- name: Ensure baculum packages
+  package:
+    name: "{{ r_bacula_packages[facts.distro_lower]['bacula_web'] }}"
+    state: present
+  when: r_bacula_install_webgui
+  tags: r_bacula_install_webgui
+- name: Ensure required folders
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: bacula
+    group: bacula
+  with_items:
+    - "{{ r_bacula_restore_dir }}"
+    - "{{ r_bacula_archive_dir }}"
+  tags: r_bacula_req_folders

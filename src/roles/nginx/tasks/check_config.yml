@@ -1,0 +1,18 @@
+---
+- name: Test nginx config
+  when: not ansible_check_mode
+  block:
+    - name: Run test command
+      become: yes
+      command:
+        cmd: "{{ AppNginx.validation }}"
+      changed_when: no
+      failed_when: no
+      register: nginx_test_result
+    - debug:
+        msg: "{{ [nginx_test_result.stdout_lines, nginx_test_result.stderr.split('\n')]|flatten }}"
+    - assert:
+        quiet: yes
+        fail_msg: "Failed to validate nginx config"
+        that:
+          - nginx_test_result.rc == 0

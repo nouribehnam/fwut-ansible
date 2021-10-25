@@ -1,0 +1,49 @@
+{%- set options = site_config.value -%}
+{# {% for o, v in (options.host_options|default({})).items() -%}
+{% if (v|type_debug) == "list" -%}
+{% for i in v -%}
+{{ o }} {{ i }};
+{% endfor -%}
+{% else -%}
+{{o}} {{ v }};
+{% endif -%}
+{% endfor %} #}
+
+server {
+    {% for l in options.listens|default([]) -%}
+    listen {{ l }};
+    {% endfor %}
+
+    {% for o, v in (options.server_options|default({})).items() -%}
+    {% if (v|type_debug) == "list" -%}
+    {% for i in v -%}
+    {{ o }} {{ i }};
+    {% endfor -%}
+    {% else -%}
+    {{o}} {{ v }};
+    {% endif -%}
+    {% endfor %}
+
+    {% if options.server_names is defined -%}
+    server_name {{ options.server_names|join(' ') }};
+    {% endif %}
+
+    {% if options.locations is defined -%}
+    {% for l in options.locations|default([]) -%}
+    location {{ l.match }} {
+
+        {% for o, v in l.options.items() -%}
+        {% if (v|type_debug) == "list" -%}
+        {% for i in v -%}
+        {{ o }} {{ i }};
+        {% endfor -%}
+        {% else -%}
+        {{o}} {{ v }};
+        {% endif -%}
+        {% endfor %}
+
+    }
+    {% endfor %}
+    {% endif %}
+
+}

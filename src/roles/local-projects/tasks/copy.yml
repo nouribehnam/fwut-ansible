@@ -1,0 +1,75 @@
+---
+- name: ({{ project_name }}) Pre copy script
+  shell:
+    chdir: "{{ project_dest.path }}"
+    cmd: "{{ project_dest.pre_copy }}"
+  when: project_dest.pre_copy is defined
+- name: ({{ project_name }}) Remove destination path
+  file:
+    path: "{{ project_dest.path }}"
+    state: absent
+  when: project_dest.remove_first|default(False)
+- name: ({{ project_name }}) Ensure destination path
+  file:
+    path: "{{ project_dest.path }}"
+    state: directory
+- name: ({{ project_name }}) Create tmp directory
+  tempfile:
+    state: directory
+    suffix: project_name
+  register: prj_tmp
+  when: project_dest.use_tmp|default(False)
+  changed_when: false
+- name: ({{ project_name }}) Ensure tmp subpath
+  file:
+    path: "{{ prj_tmp.path|default('') }}{{ project_dest.path }}"
+    state: directory
+  when: prj_tmp.path is defined
+  changed_when: false
+- name: ({{ project_name }}) Extracting source
+  unarchive:
+    src: "{{ downloaded_source.dest }}"
+    dest: "{{ prj_tmp.path|default('') }}{{ project_dest.path }}"
+    include: "{{ project_dest.archive_include|default(omit) }}"
+    extra_opts: "{{ project_dest.archive_args|default(omit) }}"
+    remote_src: yes
+  when: project_source.is_archive|default(True)
+  register: prj_extract_result
+  changed_when:
+    - not prj_tmp.path is defined
+    - prj_extract_result.changed|bool
+- name: ({{ project_name }}) Copy to destination
+  copy:
+    src: "{{ prj_tmp.path|default('') }}{{ project_dest.path }}/{{project_dest.src_path}}"
+    dest: "{{ project_dest.path }}"
+    remote_src: yes
+  when: prj_tmp.path is defined
+  register: prj_copy_status
+- name: ({{ project_name }}) Update deploy_changed
+  set_fact:
+    prj_deploy_changed: "{{prj_copy_status.changed}}"
+- name: ({{ project_name }}) Remove tmp directory
+  file:
+    path: "{{ prj_tmp.path }}"
+    state: absent
+  when: prj_tmp.path is defined
+  changed_when: false
+- name: Ensure paths
+  file:
+    path: "{{ item is abs | ternary('', project_dest.path + '/') }}{{ item }}"
+    state: directory
+  loop: "{{project_dest.paths}}"
+  when: project_dest.paths is defined
+- name: ({{ project_name }}) Ensure permissions
+  file:
+    path: "{{ item['path'] is abs | ternary('', project_dest.path) }}/{{ item['path'] }}"
+    mode: "{{ item.mode|default(omit) }}"
+    owner: "{{ item.owner|default(omit) }}"
+    group: "{{ item.group|default(omit) }}"
+  loop: "{{project_dest.file_permissions}}"
+  when: project_dest.file_permissions is defined
+- name: ({{ project_name }}) Post copy sctipt
+  shell:
+    chdir: "{{ project_dest.path }}"
+    cmd: "{{ project_dest.post_copy }}"
+  when: project_dest.post_copy is defined

@@ -1,0 +1,24 @@
+---
+- name: Stop Endpoints
+  become: yes
+  systemd:
+    name: 'wg-quick@{{ endpoint.key }}'
+    state: stopped
+  loop: "{{ wireguard.endpoints|default({})|dict2items }}"
+  loop_control:
+    label: "{{ endpoint.key }}"
+    loop_var: endpoint
+  when: endpoint.value.disabled|default(False)
+  listen: "Restart Wireguard Endpoints"
+- name: Restart Endpoints
+  become: yes
+  systemd:
+    name: 'wg-quick@{{ endpoint.key }}'
+    state: restarted
+  loop: "{{ wireguard.endpoints|default({})|dict2items }}"
+  loop_control:
+    label: "{{ endpoint.key }}"
+    loop_var: endpoint
+  when: not endpoint.value.disabled|default(False)|bool
+  listen: "Restart Wireguard Endpoints"
+  

@@ -1,0 +1,23 @@
+# cadvisor variables
+
+# docker_compose_variables
+r_cadvisor_dock_container_name: "cadvisor"
+r_cadvisor_dock_docker_image: "google/cadvisor"
+r_cadvisor_dock_docker_image_version: "latest"
+
+g_src_path: /usr/local/src
+r_cadvisor_dock_project_path: "cadvisor"
+
+# network_mode can be host or default
+r_cadvisor_dock_network_mode: "default"
+
+# set host_port if network_mode is set to to default
+r_cadvisor_dock_host_port: 8088
+r_cadvisor_dock_doc_restart_policy: "always"
+
+# Volumes
+r_cadvisor_dock_root_vol: /
+r_cadvisor_dock_run_vol: /var/run
+r_cadvisor_dock_sys_vol: /sys
+r_cadvisor_dock_docker_vol: /var/lib/docker/
+r_cadvisor_dock_disk_vol: /dev/disk/

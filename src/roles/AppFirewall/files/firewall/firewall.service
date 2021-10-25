@@ -1,0 +1,12 @@
+[Unit]
+Description=Firewall using iptables
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/firewall start
+ExecStop=/usr/sbin/firewall stop
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

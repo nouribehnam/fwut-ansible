@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  prometheus:
+    container_name: {{ r_prometheus_docker_container_name }}
+    image: {{ r_prometheus_docker_image }}:{{ r_prometheus_docker_image_version }}
+    ports:
+      - {{ r_prometheus_docker_http_port }}:9090
+    hostname: {{ r_prometheus_docker_hostname  }}
+    restart: {{ r_prometheus_docker_restart_policy }}
+    volumes:
+      - {{ r_prometheus_docker_config_vol }}:/etc/prometheus/prometheus.yml:ro
+      - {{ r_prometheus_docker_data_vol }}:/prometheus

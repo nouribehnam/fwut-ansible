@@ -1,0 +1,35 @@
+---
+- name: Apply sysctl_config
+  include_tasks:
+    file: "{{ tasks_path }}/ApplySysctlConfig.yml"
+    apply:
+      tags:
+        - never
+        - Apply Sysctl
+  vars:
+    sysctl_config: "{{ lookup('vars', config_var, default={}) }}"
+  when:
+    - config_var is defined
+  tags: Apply Sysctl
+- name: Install OS package
+  become: yes
+  package:
+    name: "{{ os.packages[package_name] }}"
+  tags: Install OS Packages
+
+- name: Reboot
+  become: yes
+  reboot:
+    pre_reboot_delay: "{{ g_pre_rebbot_delay|default(omit) }}"
+    post_reboot_delay: "{{ g_pre_rebbot_delay|default(omit) }}"
+  tags: REBOOT
+
+- name: Ping
+  tags: ping
+  block:
+    - ping:
+      when: (facts.system|lower) is search('linux|ios')
+    - win_ping:
+      when: (facts.system|lower) == 'windows'
+    # - net_ping:
+    #   when: (facts.system|lower) == 'ios'

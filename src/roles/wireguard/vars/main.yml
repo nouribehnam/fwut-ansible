@@ -1,0 +1,12 @@
+---
+r_wireguard_config_path: /etc/wireguard
+r_wireguard_packages:
+  debian:
+    - wireguard
+    - wireguard-tools
+  ubuntu:
+    - wireguard
+    - wireguard-tools
+  centos:
+    - wireguard
+    - wireguard-tools
